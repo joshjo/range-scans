@@ -27,7 +27,6 @@ public:
     	*a1 = atoi(parts.c_str());
     }
 
-    // Ignore the following methods for now:
     const char* Name() const { return "NumericComparator"; }
     void FindShortestSeparator(std::string*, const rocksdb::Slice&) const { }
     void FindShortSuccessor(std::string*) const { }
@@ -50,22 +49,6 @@ int main() {
     // populate the database
     rocksdb::Slice key1 = "13";
     std::string val1 = "one";
-    // rocksdb::Slice key2 = "2:3";
-    // rocksdb::Slice key3 = "2:1";
-    // std::string val2 = "two";
-    // std::string val3 = "three";
-    // db->Put(rocksdb::WriteOptions(), key1, val1);
-    // for (long i = 0; i < 100000; i += 1) {
-    //     std::string key = std::to_string(i);
-    //     std::string value = std::to_string(i * 2);
-    //     db->Put(rocksdb::WriteOptions(), key, value);
-    // }
-
-    //iterate the database
-    // rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
-    // for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    //     cout << it->key().ToString() << ": " << it->value().ToString() << endl;
-    // }
 
     std::string start = "100";
     std::string limit = "200";
@@ -75,7 +58,7 @@ int main() {
         it->Next()) {
             std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
     }
-    // delete it;
+    delete it;
 
     // close the database
     delete db;
