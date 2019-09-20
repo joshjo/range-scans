@@ -18,7 +18,7 @@ int main() {
     rocksdb::Status status = rocksdb::DB::Open(options, "/tmp/tree", &db);
     assert(status.ok());
 
-    for (long i = 0; i < 100000; i += 1) {
+    for (long i = 0; i < 1000000; i += 1) {
         std::string key = std::to_string(i);
         std::string value = std::to_string(i * 2);
         db->Put(rocksdb::WriteOptions(), key, value);
