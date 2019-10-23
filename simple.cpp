@@ -1,8 +1,15 @@
 #include <assert.h>
 #include <iostream>
+#include <fstream>
+#include <typeinfo>
+#include <chrono>
+#include <ctime>
+
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
 #include "numeric_comparator.h"
+#include "../interval-base-tree/src/tree.h"
+#include "../interval-base-tree/src/leaftree.h"
 
 
 using namespace std;
@@ -19,6 +26,9 @@ int main(int argc, char** argv) {
     sscanf(argv[1], "%d", &start);
     sscanf(argv[2], "%d", &limit);
 
+    string sstart = to_string(start);
+    string slimit = to_string(limit);
+
     rocksdb::DB* db;
     rocksdb::Options options;
     options.create_if_missing = true;
@@ -27,12 +37,19 @@ int main(int argc, char** argv) {
 
     rocksdb::Status status = rocksdb::DB::Open(options, "/tmp/tree", &db);
     assert(status.ok());
+    rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
+    int local_range_avg = 0;
 
-    for (long i = start; i < limit; i += 1) {
-        std::string key = std::to_string(i);
-        std::string value = std::to_string(i * 2);
-        db->Put(rocksdb::WriteOptions(), key, value);
+    for (it->Seek(sstart);
+        it->Valid() && stoi(it->key().ToString()) < limit;
+        it->Next()) {
+            cout << it->key().ToString() << " - " << it->value().ToString() << "\n";
     }
 
+    // cout << ("999" < "1000") << endl;
+
+    delete it;
     delete db;
+
+    return 0;
 }
