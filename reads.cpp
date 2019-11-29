@@ -11,15 +11,9 @@
 #include "numeric_comparator.h"
 #include "../interval-base-tree/src/tree.h"
 #include "../interval-base-tree/src/leaftree.h"
+#include "../interval-base-tree/src/config.h"
 
 typedef Interval<int> Tinterval;
-
-
-class TraitsBase {
-    public:
-        typedef int T;
-        typedef Node<T> TNode;
-};
 
 
 using namespace std;

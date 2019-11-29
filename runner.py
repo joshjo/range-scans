@@ -39,4 +39,4 @@ if __name__ == '__main__':
                 command = "./reads_lazy.out --query_number=%d --range_size=%d" % (query, range_size)
                 print(command)
                 os.system(command)
-    print("\n")
+        print("\n")
