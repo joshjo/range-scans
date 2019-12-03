@@ -130,7 +130,6 @@ int main(int argc, char** argv) {
 
         start_time = std::chrono::system_clock::now();
         LeafTree<int> leaftree;
-
         vector <Tinterval> leafs;
 
         tree.getLeafs(leafs);
