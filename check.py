@@ -6,9 +6,14 @@ output_folder = 'output/'
 
 main_folder = output_folder + 'original/'
 
-strategies = ['lazy', 'eager', 'extra']
+strategies = [
+    # 'lazy',
+    # 'eager',
+    'extra',
+]
 
 results = []
+invalid_files = []
 
 
 for r, d, f in os.walk(main_folder):
@@ -20,7 +25,11 @@ for r, d, f in os.walk(main_folder):
                 '%s%s/%s' % (output_folder, strategy, query_file),
             )
             strategy_diffs.append(diff)
+            if not diff:
+                invalid_files.append('%s%s/%s' % (output_folder, strategy, query_file))
         if all(strategy_diffs):
             print("✓ %s is correct :)" % strategy)
         else:
+            for i in invalid_files:
+                print(i)
             print("[Error] %s is presenting diff results", strategy)

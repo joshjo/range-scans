@@ -64,18 +64,25 @@ long original(vector <Tinterval> & queries, rocksdb::DB* db) {
         Tinterval interval = queries[i];
         string start = to_string(interval.left);
         string limit = to_string(interval.right);
-        string file_name = getFileName(interval);
-        ofstream ofile(file_name);
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < interval.right;
-            it->Next())
-        {
-            sum += stoi(it->value().ToString());
-            if (FLAGS_write_disk) {
+        if (FLAGS_write_disk) {
+            string file_name = getFileName(interval);
+            ofstream ofile(file_name);
+            for (it->Seek(start);
+                it->Valid() && stoi(it->key().ToString()) < interval.right;
+                it->Next())
+            {
+                sum += stoi(it->value().ToString());
                 ofile << it->key().ToString() << " - " << it->value().ToString() << "\n";
             }
+            ofile.close();
+        } else {
+            for (it->Seek(start);
+                it->Valid() && stoi(it->key().ToString()) < interval.right;
+                it->Next())
+            {
+                sum += stoi(it->value().ToString());
+            }
         }
-        ofile.close();
     }
     auto et_1 = chrono::system_clock::now();
     delete it;
@@ -166,6 +173,7 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
     delete it;
 
     cout << "tree time\t" << tree_time << endl;
+    cout << "update time\t" << tree->update_time << endl;
     cout << "extra time \t" << extra_time << endl;
     cout << "allocation\t" << allocation_time << endl;
     cout << "db execution\t" << db_exec_time << endl;
@@ -189,7 +197,6 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     double tree_time = elapsed_seconds.count();
-    cout << "tree time\t" << tree_time << endl;
 
     for (int i = 0; i < tree->root->leafs->size(); i += 1) {
         auto st_2 = std::chrono::system_clock::now();
@@ -214,7 +221,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
 
         st_2 = std::chrono::system_clock::now();
 
-        for (set<Tinterval *>::iterator it = tree->root->leafs->at(i)->queries->begin(); it != tree->root->leafs->at(i)->queries->end(); it++) {
+        for (vector<Tinterval *>::iterator it = tree->root->leafs->at(i)->queries->begin(); it != tree->root->leafs->at(i)->queries->end(); it++) {
             Tinterval * query = *it;
             if (query->right < leaf.left || query->left > leaf.right) {
                 continue;
@@ -241,7 +248,8 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-
+    cout << "tree time\t" << tree_time << endl;
+    cout << "update time\t" << tree->update_time << endl;
     cout << "allocation\t" << allocation_time << endl;
     cout << "db execution\t" << db_exec_time << endl;
     cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
@@ -264,7 +272,6 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     double tree_time = elapsed_seconds.count();
-    cout << "tree time\t" << tree_time << endl;
 
     for (int i = 0; i < tree->root->leafs->size(); i += 1) {
         auto st_2 = std::chrono::system_clock::now();
@@ -314,7 +321,8 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-
+    cout << "tree time\t" << tree_time << endl;
+    cout << "update time\t" << tree->update_time << endl;
     cout << "allocation\t" << allocation_time << endl;
     cout << "db execution\t" << db_exec_time << endl;
     cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
@@ -354,9 +362,6 @@ int main(int argc, char** argv) {
 
     cout << "checksum:\t" << sum << endl;
 
-    // for (int i = 0; i < 10; i += 1) {
-    // lazy(queries, db);
-    // }
     delete db;
 
     gflags::ShutDownCommandLineFlags();

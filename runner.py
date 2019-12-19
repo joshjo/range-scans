@@ -1,42 +1,53 @@
 import os
-
-
-queries = [
-    10,
-    25,
-    50,
-    100,
-    250,
-    500,
-    1000,
-    2500,
-    5000,
-    10000,
-    25000,
-    50000,
-    100000,
-    # 250000,
-    # 500000,
-    # 1000000,
-]
-
-range_sizes = [
-    # 10,
-    # 100,
-    # 1000,
-    # 10000,
-    100000,
-]
+from datetime import datetime
 
 
 iters = 5
 
+strategies = [
+    'lazy',
+    'eager',
+    'extra',
+    # 'original',
+]
+
 
 if __name__ == '__main__':
-    for query in queries:
-        for range_size in range_sizes:
+    print("Experiment 1")
+    queries = [
+        10,
+        100,
+        1000,
+        10000,
+        100000,
+        1000000,
+    ]
+
+
+    for strategy in strategies:
+        for query_size in queries:
             for i in range(iters):
-                command = "./reads_lazy.out --query_number=%d --range_size=%d" % (query, range_size)
+                print(datetime.now())
+                command = "./main.out --strategy=%s --queries=%d --key_domain_size=1000000 --leaf_size=100000 --range_size=100000" % (strategy, query_size)
                 print(command)
                 os.system(command)
-        print("\n")
+
+    # print("Experiment 2")
+    # queries = [
+    #     10000,
+    #     100000,
+    # ]
+    # rqs = [
+    #     10,
+    #     100,
+    #     1000,
+    #     10000,
+    #     100000,
+    # ]
+    # for strategy in strategies:
+    #     for query_size in queries:
+    #         for range_size in rqs:
+    #             for i in range(5):
+    #                 command = "./main.out --query_number=%d --key_domain_size=1000000 --leaf_size=100000 --range_size=%d" % (query_size, range_size)
+    #                 print(command)
+    #                 os.system(command)
