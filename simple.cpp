@@ -16,18 +16,20 @@ using namespace std;
 
 
 int main(int argc, char** argv) {
-    if (argc != 3) {
-        cout << "Please enter a range: ./simple 100 1000" << endl;
-        return 0;
-    }
+    // if (argc != 3) {
+    //     cout << "Please enter a range: ./simple 100 1000" << endl;
+    //     return 0;
+    // }
 
-    int start, limit;
+    // int start, limit;
 
-    sscanf(argv[1], "%d", &start);
-    sscanf(argv[2], "%d", &limit);
+    // sscanf(argv[1], "%d", &start);
+    // sscanf(argv[2], "%d", &limit);
 
-    string sstart = to_string(start);
-    string slimit = to_string(limit);
+    // string sstart = to_string(start);
+    // string slimit = to_string(limit);
+
+    int key_domain_size = 1000000;
 
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -40,10 +42,15 @@ int main(int argc, char** argv) {
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
     int local_range_avg = 0;
 
-    for (it->Seek(sstart);
-        it->Valid() && stoi(it->key().ToString()) < limit;
-        it->Next()) {
-            cout << it->key().ToString() << " - " << it->value().ToString() << "\n";
+    for (int i = 0; i < 100; i += 1) {
+        int S1 = rand() % key_domain_size;
+        string sstart = to_string(S1);
+        int limit = S1 + 1;
+        for (it->Seek(sstart);
+            it->Valid() && stoi(it->key().ToString()) < limit;
+            it->Next()) {
+                // cout << it->key().ToString() << " - " << it->value().ToString() << "\n";
+        }
     }
 
     // cout << ("999" < "1000") << endl;
