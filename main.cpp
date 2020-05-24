@@ -5,9 +5,9 @@
 #include <typeinfo>
 #include <chrono>
 #include <ctime>
+#include <random>
 #include <gflags/gflags.h>
-#include <bits/stdc++.h>
-#include <iostream>
+#include <bits/stdc++.h
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -31,6 +31,8 @@ string outputfolder = "output/";
 
 using namespace std;
 
+int seed = 100;
+
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
     return (i1->interval.left < i2->interval.left);
@@ -42,6 +44,19 @@ vector<Tinterval> create_queries() {
     T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
     for (int i = 0; i < FLAGS_queries; i += 1) {
         T rnd = rand() % max_random;
+        result.push_back(Tinterval(rnd, rnd + FLAGS_leaf_size));
+    }
+    return result;
+}
+
+vector<Tinterval> create_queries_zipf() {
+    vector<Tinterval> result
+    T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
+    std::mt19937 gen(seed);
+    zipf_distribution<> zipf(max_random);
+
+    for (int i = 0; i < FLAGS_queries; i += 1) {
+        T rnd = zipf(gen);
         result.push_back(Tinterval(rnd, rnd + FLAGS_leaf_size));
     }
     return result;
@@ -332,12 +347,13 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
 
 
 int main(int argc, char** argv) {
-    srand (100);
+    srand (seed);
 
     gflags::SetUsageMessage("Reads Lazy");
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    vector <Tinterval> queries = create_queries();
+    // vector <Tinterval> queries = create_queries();
+    vector <Tinterval> queries = create_queries_zipf();
 
     rocksdb::DB* db;
     rocksdb::Options options;
