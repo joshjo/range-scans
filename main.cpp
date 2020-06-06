@@ -7,13 +7,15 @@
 #include <ctime>
 #include <random>
 #include <gflags/gflags.h>
-#include <bits/stdc++.h
+#include <bits/stdc++.h>
+#include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
 #include "numeric_comparator.h"
+#include "zipf.h"
 #include "../interval-base-tree/src/tree.h"
 #include "../interval-base-tree/src/leaftree.h"
 #include "../interval-base-tree/src/config.h"
@@ -26,6 +28,7 @@ DEFINE_int64(leaf_size, 100000, "Leaf size");
 DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(range_size, 100000, "Range of queries");
 DEFINE_string(strategy, "raw", "Strategy");
+DEFINE_string(distribution, "default", "Random Distribution");
 DEFINE_bool(write_disk, false, "Write output to disk");
 string outputfolder = "output/";
 
@@ -50,7 +53,7 @@ vector<Tinterval> create_queries() {
 }
 
 vector<Tinterval> create_queries_zipf() {
-    vector<Tinterval> result
+    vector<Tinterval> result;
     T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
     std::mt19937 gen(seed);
     zipf_distribution<> zipf(max_random);
@@ -353,7 +356,15 @@ int main(int argc, char** argv) {
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     // vector <Tinterval> queries = create_queries();
-    vector <Tinterval> queries = create_queries_zipf();
+    vector <Tinterval> queries;
+
+    if (FLAGS_distribution == "zipf") {
+        queries = create_queries_zipf();
+    } else {
+        queries = create_queries();
+    }
+
+    cout << queries.size() << endl;
 
     rocksdb::DB* db;
     rocksdb::Options options;
