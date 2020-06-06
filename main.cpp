@@ -39,10 +39,10 @@ bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 vector<Tinterval> create_queries() {
     vector<Tinterval> result;
 
-    T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
+    T max_random = FLAGS_key_domain_size - FLAGS_range_size;
     for (int i = 0; i < FLAGS_queries; i += 1) {
         T rnd = rand() % max_random;
-        result.push_back(Tinterval(rnd, rnd + FLAGS_leaf_size));
+        result.push_back(Tinterval(rnd, rnd + FLAGS_range_size));
     }
     return result;
 }
@@ -127,57 +127,59 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
     elapsed_seconds = et_1 - st_1;
     extra_time = elapsed_seconds.count();
 
-    for (int i = 0; i < nodes.size(); i += 1) {
-        auto st_2 = std::chrono::system_clock::now();
-        Interval<T> leaf = nodes[i]->interval;
-        string start = to_string(leaf.left);
-        string limit = to_string(leaf.right);
-        string ** temp = new string * [leaf.distance()];
+    // for (int i = 0; i < nodes.size(); i += 1) {
+    //     auto st_2 = std::chrono::system_clock::now();
+    //     Interval<T> leaf = nodes[i]->interval;
+    //     string start = to_string(leaf.left);
+    //     string limit = to_string(leaf.right);
+    //     string ** temp = new string * [leaf.distance()];
 
-        for (T i = 0; i < (leaf.right - leaf.left); i += 1) {
-            temp[i] = NULL;
-        }
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < leaf.right;
-            it->Next()
-        ) {
-            T key = stoi(it->key().ToString());
-            temp[key - leaf.left] = new string(it->value().ToString());
-        }
-        auto et_2 = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+    //     for (T i = 0; i < (leaf.right - leaf.left); i += 1) {
+    //         temp[i] = NULL;
+    //     }
+    //     for (it->Seek(start);
+    //         it->Valid() && stoi(it->key().ToString()) < leaf.right;
+    //         it->Next()
+    //     ) {
+    //         T key = stoi(it->key().ToString());
+    //         temp[key - leaf.left] = new string(it->value().ToString());
+    //     }
+    //     auto et_2 = std::chrono::system_clock::now();
+    //     std::chrono::duration<double> elapsed_timer = et_2 - st_2;
+    //     allocation_time += elapsed_timer.count();
 
-        st_2 = std::chrono::system_clock::now();
-        for(int j = 0; j < nodes[i]->hashmap.size(); j++) {
-            Tinterval * query = nodes[i]->hashmap[j].first;
-            Tinterval interval = nodes[i]->hashmap[j].second;
-            if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (int i = interval.left; i < interval.right && temp[i - leaf.left] != NULL; i += 1) {
-                    ofile << i << " - " << (*temp[i - leaf.left]) << "\n";
-                    sum += stoi(*temp[i - leaf.left]);
-                }
-                ofile.close();
-            } else {
-                for (int i = interval.left; i < interval.right && temp[i - leaf.left] != NULL; i += 1) {
-                    sum += stoi(*temp[i - leaf.left]);
-                }
-            }
-        }
-        et_2 = std::chrono::system_clock::now();
-        elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
-    }
+    //     st_2 = std::chrono::system_clock::now();
+    //     for(int j = 0; j < nodes[i]->hashmap.size(); j++) {
+    //         Tinterval * query = nodes[i]->hashmap[j].first;
+    //         Tinterval interval = nodes[i]->hashmap[j].second;
+    //         if (FLAGS_write_disk) {
+    //             string file_name = getFileName(*query);
+    //             ofstream ofile(file_name, std::ios_base::app);
+    //             for (int i = interval.left; i < interval.right && temp[i - leaf.left] != NULL; i += 1) {
+    //                 ofile << i << " - " << (*temp[i - leaf.left]) << "\n";
+    //                 sum += stoi(*temp[i - leaf.left]);
+    //             }
+    //             ofile.close();
+    //         } else {
+    //             for (int i = interval.left; i < interval.right && temp[i - leaf.left] != NULL; i += 1) {
+    //                 sum += stoi(*temp[i - leaf.left]);
+    //             }
+    //         }
+    //     }
+    //     et_2 = std::chrono::system_clock::now();
+    //     elapsed_timer = et_2 - st_2;
+    //     db_exec_time += elapsed_timer.count();
+    // }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "extra time \t" << extra_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time + extra_time << endl;
+    cout << tree_time - tree->update_time << "," << tree->update_time << "," << extra_time << "," << tree_time << "," << tree->numberLeafs();
+
+    // cout << "tree time\t" << tree_time << endl;
+    // cout << "update time\t" << tree->update_time << endl;
+    // cout << "extra time \t" << extra_time << endl;
+    // cout << "allocation\t" << allocation_time << endl;
+    // cout << "db execution\t" << db_exec_time << endl;
+    // cout << "total time\t" << allocation_time + db_exec_time + tree_time + extra_time << endl;
 
     return sum;
 }
@@ -198,61 +200,64 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     double tree_time = elapsed_seconds.count();
 
-    for (int i = 0; i < tree->root->leafs->size(); i += 1) {
-        auto st_2 = std::chrono::system_clock::now();
-        Tinterval leaf = tree->root->leafs->at(i)->interval;
-        string start = to_string(leaf.left);
-        string limit = to_string(leaf.right);
-        string ** temp = new string * [leaf.distance()];
+    // for (int i = 0; i < tree->root->leafs->size(); i += 1) {
+    //     auto st_2 = std::chrono::system_clock::now();
+    //     Tinterval leaf = tree->root->leafs->at(i)->interval;
+    //     string start = to_string(leaf.left);
+    //     string limit = to_string(leaf.right);
+    //     string ** temp = new string * [leaf.distance()];
 
-        for (int i = leaf.left; i < leaf.right; i += 1) {
-            temp[i - leaf.left] = NULL;
-        }
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < leaf.right;
-            it->Next()
-        ) {
-            int key = stoi(it->key().ToString());
-            temp[key - leaf.left] = new string(it->value().ToString());
-        }
-        auto et_2 = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+    //     for (int i = leaf.left; i < leaf.right; i += 1) {
+    //         temp[i - leaf.left] = NULL;
+    //     }
+    //     for (it->Seek(start);
+    //         it->Valid() && stoi(it->key().ToString()) < leaf.right;
+    //         it->Next()
+    //     ) {
+    //         int key = stoi(it->key().ToString());
+    //         temp[key - leaf.left] = new string(it->value().ToString());
+    //     }
+    //     auto et_2 = std::chrono::system_clock::now();
+    //     std::chrono::duration<double> elapsed_timer = et_2 - st_2;
+    //     allocation_time += elapsed_timer.count();
 
-        st_2 = std::chrono::system_clock::now();
+    //     st_2 = std::chrono::system_clock::now();
 
-        for (vector<Tinterval *>::iterator it = tree->root->leafs->at(i)->queries->begin(); it != tree->root->leafs->at(i)->queries->end(); it++) {
-            Tinterval * query = *it;
-            if (query->right < leaf.left || query->left > leaf.right) {
-                continue;
-            }
-            T begin = query->left - leaf.left >= 0 ? query->left - leaf.left : 0;
-            T end = query->right - leaf.right >= 0 ? leaf.right - leaf.left : query->right - leaf.left;
-            if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (int i = begin; i < end; i += 1) {
-                    ofile << i + leaf.left << " - " << (*temp[i]) << "\n";
-                    sum += stoi(*temp[i]);
-                }
-                ofile.close();
-            } else {
-                for (int i = begin; i < end; i += 1) {
-                    sum += stoi(*temp[i]);
-                }
-            }
-        }
-        et_2 = std::chrono::system_clock::now();
-        elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
-    }
+    //     for (vector<Tinterval *>::iterator it = tree->root->leafs->at(i)->queries->begin(); it != tree->root->leafs->at(i)->queries->end(); it++) {
+    //         Tinterval * query = *it;
+    //         if (query->right < leaf.left || query->left > leaf.right) {
+    //             continue;
+    //         }
+    //         T begin = query->left - leaf.left >= 0 ? query->left - leaf.left : 0;
+    //         T end = query->right - leaf.right >= 0 ? leaf.right - leaf.left : query->right - leaf.left;
+    //         if (FLAGS_write_disk) {
+    //             string file_name = getFileName(*query);
+    //             ofstream ofile(file_name, std::ios_base::app);
+    //             for (int i = begin; i < end; i += 1) {
+    //                 ofile << i + leaf.left << " - " << (*temp[i]) << "\n";
+    //                 sum += stoi(*temp[i]);
+    //             }
+    //             ofile.close();
+    //         } else {
+    //             for (int i = begin; i < end; i += 1) {
+    //                 sum += stoi(*temp[i]);
+    //             }
+    //         }
+    //     }
+    //     et_2 = std::chrono::system_clock::now();
+    //     elapsed_timer = et_2 - st_2;
+    //     db_exec_time += elapsed_timer.count();
+    // }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
+    cout << tree_time - tree->update_time << "," << tree->update_time << "," << "0," << tree_time << "," << tree->numberLeafs();
+
+    // cout << "tree time\t" << tree_time << endl;
+    // cout << "update time\t" << tree->update_time << endl;
+    // cout << "# leaf nodes\t" << tree->numberLeafs() << endl;
+    // cout << "allocation\t" << allocation_time << endl;
+    // cout << "db execution\t" << db_exec_time << endl;
+    // cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
 
     return sum;
 }
@@ -273,59 +278,62 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     double tree_time = elapsed_seconds.count();
 
-    for (int i = 0; i < tree->root->leafs->size(); i += 1) {
-        auto st_2 = std::chrono::system_clock::now();
-        Tinterval leaf = tree->root->leafs->at(i)->interval;
-        string start = to_string(leaf.left);
-        string limit = to_string(leaf.right);
-        string ** temp = new string * [leaf.distance()];
+    // for (int i = 0; i < tree->root->leafs->size(); i += 1) {
+    //     auto st_2 = std::chrono::system_clock::now();
+    //     Tinterval leaf = tree->root->leafs->at(i)->interval;
+    //     string start = to_string(leaf.left);
+    //     string limit = to_string(leaf.right);
+    //     string ** temp = new string * [leaf.distance()];
 
-        for (int i = leaf.left; i < leaf.right; i += 1) {
-            temp[i - leaf.left] = NULL;
-        }
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < leaf.right;
-            it->Next()
-        ) {
-            int key = stoi(it->key().ToString());
-            temp[key - leaf.left] = new string(it->value().ToString());
-        }
-        auto et_2 = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+    //     for (int i = leaf.left; i < leaf.right; i += 1) {
+    //         temp[i - leaf.left] = NULL;
+    //     }
+    //     for (it->Seek(start);
+    //         it->Valid() && stoi(it->key().ToString()) < leaf.right;
+    //         it->Next()
+    //     ) {
+    //         int key = stoi(it->key().ToString());
+    //         temp[key - leaf.left] = new string(it->value().ToString());
+    //     }
+    //     auto et_2 = std::chrono::system_clock::now();
+    //     std::chrono::duration<double> elapsed_timer = et_2 - st_2;
+    //     allocation_time += elapsed_timer.count();
 
-        st_2 = std::chrono::system_clock::now();
+    //     st_2 = std::chrono::system_clock::now();
 
-        for (vector<pair<Tinterval *, Tinterval>>::iterator it = tree->root->leafs->at(i)->queries_map->begin(); it != tree->root->leafs->at(i)->queries_map->end(); it++) {
-            Tinterval * query = it->first;
-            Tinterval limits = it->second;
+    //     for (vector<pair<Tinterval *, Tinterval>>::iterator it = tree->root->leafs->at(i)->queries_map->begin(); it != tree->root->leafs->at(i)->queries_map->end(); it++) {
+    //         Tinterval * query = it->first;
+    //         Tinterval limits = it->second;
 
-            if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (T i = limits.left - leaf.left; i < (limits.right - leaf.left); i += 1) {
-                    sum += stoi(*temp[i]);
-                    ofile << i + leaf.left << " - " << (*temp[i]) << "\n";
-                }
-                ofile.close();
-            } else {
-                for (T i = limits.left - leaf.left; i < (limits.right - leaf.left); i += 1) {
-                    sum += stoi(*temp[i]);
-                }
-            }
+    //         if (FLAGS_write_disk) {
+    //             string file_name = getFileName(*query);
+    //             ofstream ofile(file_name, std::ios_base::app);
+    //             for (T i = limits.left - leaf.left; i < (limits.right - leaf.left); i += 1) {
+    //                 sum += stoi(*temp[i]);
+    //                 ofile << i + leaf.left << " - " << (*temp[i]) << "\n";
+    //             }
+    //             ofile.close();
+    //         } else {
+    //             for (T i = limits.left - leaf.left; i < (limits.right - leaf.left); i += 1) {
+    //                 sum += stoi(*temp[i]);
+    //             }
+    //         }
 
-        }
-        et_2 = std::chrono::system_clock::now();
-        elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
-    }
+    //     }
+    //     et_2 = std::chrono::system_clock::now();
+    //     elapsed_timer = et_2 - st_2;
+    //     db_exec_time += elapsed_timer.count();
+    // }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
+    cout << tree_time - tree->update_time << "," << tree->update_time << "," << "0," << tree_time << "," << tree->numberLeafs();
+
+    // cout << "tree time\t" << tree_time << endl;
+    // cout << "update time\t" << tree->update_time << endl;
+    // cout << "# leaf nodes\t" << tree->numberLeafs() << endl;
+    // cout << "allocation\t" << allocation_time << endl;
+    // cout << "db execution\t" << db_exec_time << endl;
+    // cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
 
     return sum;
 }
@@ -334,7 +342,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
 int main(int argc, char** argv) {
     srand (100);
 
-    gflags::SetUsageMessage("Reads Lazy");
+    gflags::SetUsageMessage("Reads");
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     vector <Tinterval> queries = create_queries();
@@ -360,7 +368,7 @@ int main(int argc, char** argv) {
         sum = eager(queries, db);
     }
 
-    cout << "checksum:\t" << sum << endl;
+    // cout << "checksum:\t" << sum << endl;
 
     delete db;
 
