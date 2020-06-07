@@ -31,6 +31,7 @@ DEFINE_int64(range_size, 100000, "Range of queries");
 DEFINE_string(strategy, "raw", "Strategy");
 DEFINE_string(distribution, "normal", "Random Distribution");
 DEFINE_bool(write_disk, false, "Write output to disk");
+DEFINE_int64(iter, 0, "Define the iteration number");
 string outputfolder = "output/";
 
 using namespace std;
@@ -170,6 +171,7 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
     T * leafs_values = tree->getLeafsData();
 
     Result result(
+        FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         leafs_values[0], leafs_values[1], leafs_values[2],
         tree_time, tree->update_time, extra_time,
@@ -250,6 +252,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     T * leafs_values = tree->getLeafsData();
 
     Result result(
+        FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         leafs_values[0], leafs_values[1], leafs_values[2],
         tree_time, tree->update_time, 0,
@@ -328,6 +331,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     T * leafs_values = tree->getLeafsData();
 
     Result result(
+        FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         leafs_values[0], leafs_values[1], leafs_values[2],
         tree_time, tree->update_time, 0,

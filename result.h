@@ -7,6 +7,7 @@
 using namespace std;
 
 struct Result {
+    int iter;
     string distribution;
     int number_queries;
     string strategy;
@@ -22,12 +23,14 @@ struct Result {
     double total_time;
 
     Result(
+        int i,
         string dst, int nq, string str,
         long iaw, long idw, long itw,
         double tt, double ut, double et,
         double dbt, double rst,
         double t
     ) {
+        iter = i;
         distribution = dst;
         number_queries = nq;
         strategy = str;
@@ -43,11 +46,13 @@ struct Result {
     }
 
     void printCSV() {
-        cout << number_queries << "," << strategy << ",";
+        cout << iter << ",";
+        cout << distribution << "," << number_queries << "," << strategy << ",";
         cout << interval_avg_width << "," << interval_min_width << "," << interval_max_width << ",";
         cout << tree_time << "," << update_time << "," << extra_time << ",";
         cout << results_separation_time << "," << db_exec_time << ",";
         cout << total_time;
+        cout << endl;
     }
 };
 
