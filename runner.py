@@ -9,7 +9,7 @@ iters = 5
 
 def experiment1():
     # print("Experiment 1")
-    print('iter,distribution,queries,strategy,domain,leaf size,range size,avg,min,max,tree time,update time,additional time,results separation,query execution,total time')
+    print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree time,update time,additional time,results separation,query execution,total time')
 
     strategies = [
         'lazy',
@@ -23,6 +23,7 @@ def experiment1():
         1000,
         10000,
         100000,
+        # 1000000,
     ]
     leaf_size = 100000
     range_size = 100000

@@ -164,17 +164,17 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         et_2 = std::chrono::system_clock::now();
         elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
+        allocation_time += elapsed_timer.count();
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
+    long unsigned * leafs_values = tree->getLeafsData();
 
     Result result(
         FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leaf_values,
+        leafs_values,
         tree_time, tree->update_time, extra_time,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time
@@ -190,8 +190,9 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
     Tree <ConfigLazy<T> > * tree = new Tree<ConfigLazy<T> >(FLAGS_leaf_size);
 
-    double allocation_time = 0;
     double db_exec_time = 0;
+    double allocation_time = 0;
+
     auto st_1 = chrono::system_clock::now();
     for (int i = 0; i < queries.size(); i += 1) {
         tree->insert_interval(queries[i]);
@@ -219,7 +220,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+        db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
 
@@ -246,17 +247,17 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         et_2 = std::chrono::system_clock::now();
         elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
+        allocation_time += elapsed_timer.count();
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
+    long unsigned * leafs_values = tree->getLeafsData();
 
     Result result(
         FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leaf_values,
+        leafs_values,
         tree_time, tree->update_time, 0,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time
@@ -272,8 +273,8 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
     Tree <ConfigEager<T> > * tree = new Tree<ConfigEager<T> >(FLAGS_leaf_size);
 
-    double allocation_time = 0;
     double db_exec_time = 0;
+    double allocation_time = 0;
     auto st_1 = chrono::system_clock::now();
     for (int i = 0; i < queries.size(); i += 1) {
         tree->insert_interval(queries[i]);
@@ -301,7 +302,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+        db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
 
@@ -326,17 +327,17 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         et_2 = std::chrono::system_clock::now();
         elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
+        allocation_time += elapsed_timer.count();
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
+    long unsigned * leafs_values = tree->getLeafsData();
 
     Result result(
         FLAGS_iter,
         FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leaf_values,
+        leafs_values,
         tree_time, tree->update_time, 0,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time

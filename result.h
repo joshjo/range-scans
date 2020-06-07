@@ -14,7 +14,7 @@ struct Result {
     long leaf_size;
     long range_size;
     long domain;
-    long * leafs_values;
+    long unsigned * leafs_values;
     double tree_time;
     double update_time;
     double extra_time;
@@ -26,7 +26,7 @@ struct Result {
         int i,
         string dst, int nq, string str,
         long d, long ls, long rs,
-        long lv,
+        long unsigned * lv,
         double tt, double ut, double et,
         double dbt, double rst,
         double t
