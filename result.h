@@ -28,7 +28,7 @@ struct Result {
         long d, long ls, long rs,
         long unsigned * lv,
         double tt, double ut, double et,
-        double dbt, double rst,
+        double rst, double dbt,
         double t
     ) {
         iter = i;
@@ -47,8 +47,8 @@ struct Result {
         update_time = ut;
         extra_time = et;
 
-        db_exec_time = dbt;
         results_separation_time = rst;
+        db_exec_time = dbt;
 
         total_time = t;
     }

@@ -142,7 +142,7 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        allocation_time += elapsed_timer.count();
+        db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
         for(int j = 0; j < nodes[i]->hashmap.size(); j++) {
@@ -176,7 +176,7 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
         leafs_values,
         tree_time, tree->update_time, extra_time,
-        db_exec_time, allocation_time,
+        allocation_time, db_exec_time,
         allocation_time + db_exec_time + tree_time
     );
     result.printCSV();
@@ -259,7 +259,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
         leafs_values,
         tree_time, tree->update_time, 0,
-        db_exec_time, allocation_time,
+        allocation_time, db_exec_time,
         allocation_time + db_exec_time + tree_time
     );
     result.printCSV();
@@ -339,7 +339,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
         leafs_values,
         tree_time, tree->update_time, 0,
-        db_exec_time, allocation_time,
+        allocation_time, db_exec_time,
         allocation_time + db_exec_time + tree_time
     );
     result.printCSV();
