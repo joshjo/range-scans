@@ -1,4 +1,3 @@
-
 #include <assert.h>
 #include <iostream>
 #include <fstream>
@@ -15,10 +14,12 @@
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
 #include "numeric_comparator.h"
-#include "zipf.h"
 #include "../interval-base-tree/src/tree.h"
 #include "../interval-base-tree/src/leaftree.h"
 #include "../interval-base-tree/src/config.h"
+
+#include "result.h"
+#include "utils.h"
 
 typedef long T;
 typedef Interval<T> Tinterval;
@@ -28,7 +29,7 @@ DEFINE_int64(leaf_size, 100000, "Leaf size");
 DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(range_size, 100000, "Range of queries");
 DEFINE_string(strategy, "raw", "Strategy");
-DEFINE_string(distribution, "default", "Random Distribution");
+DEFINE_string(distribution, "normal", "Random Distribution");
 DEFINE_bool(write_disk, false, "Write output to disk");
 string outputfolder = "output/";
 
@@ -39,30 +40,6 @@ int seed = 100;
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
     return (i1->interval.left < i2->interval.left);
-}
-
-vector<Tinterval> create_queries() {
-    vector<Tinterval> result;
-
-    T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
-    for (int i = 0; i < FLAGS_queries; i += 1) {
-        T rnd = rand() % max_random;
-        result.push_back(Tinterval(rnd, rnd + FLAGS_leaf_size));
-    }
-    return result;
-}
-
-vector<Tinterval> create_queries_zipf() {
-    vector<Tinterval> result;
-    T max_random = FLAGS_key_domain_size - FLAGS_leaf_size;
-    std::mt19937 gen(seed);
-    zipf_distribution<> zipf(max_random);
-
-    for (int i = 0; i < FLAGS_queries; i += 1) {
-        T rnd = zipf(gen);
-        result.push_back(Tinterval(rnd, rnd + FLAGS_leaf_size));
-    }
-    return result;
 }
 
 string getFileName(Tinterval & interval) {
@@ -190,12 +167,16 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "extra time \t" << extra_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time + extra_time << endl;
+    T * leafs_values = tree->getLeafsData();
+
+    Result result(
+        FLAGS_distribution, queries.size(), FLAGS_strategy,
+        leafs_values[0], leafs_values[1], leafs_values[2],
+        tree_time, tree->update_time, extra_time,
+        db_exec_time, allocation_time,
+        allocation_time + db_exec_time + tree_time
+    );
+    result.printCSV();
 
     return sum;
 }
@@ -266,11 +247,16 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
+    T * leafs_values = tree->getLeafsData();
+
+    Result result(
+        FLAGS_distribution, queries.size(), FLAGS_strategy,
+        leafs_values[0], leafs_values[1], leafs_values[2],
+        tree_time, tree->update_time, 0,
+        db_exec_time, allocation_time,
+        allocation_time + db_exec_time + tree_time
+    );
+    result.printCSV();
 
     return sum;
 }
@@ -339,11 +325,16 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    cout << "tree time\t" << tree_time << endl;
-    cout << "update time\t" << tree->update_time << endl;
-    cout << "allocation\t" << allocation_time << endl;
-    cout << "db execution\t" << db_exec_time << endl;
-    cout << "total time\t" << allocation_time + db_exec_time + tree_time << endl;
+    T * leafs_values = tree->getLeafsData();
+
+    Result result(
+        FLAGS_distribution, queries.size(), FLAGS_strategy,
+        leafs_values[0], leafs_values[1], leafs_values[2],
+        tree_time, tree->update_time, 0,
+        db_exec_time, allocation_time,
+        allocation_time + db_exec_time + tree_time
+    );
+    result.printCSV();
 
     return sum;
 }
@@ -355,16 +346,13 @@ int main(int argc, char** argv) {
     gflags::SetUsageMessage("Reads Lazy");
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    // vector <Tinterval> queries = create_queries();
     vector <Tinterval> queries;
 
     if (FLAGS_distribution == "zipf") {
-        queries = create_queries_zipf();
+        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
     } else {
-        queries = create_queries();
+        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
     }
-
-    cout << queries.size() << endl;
 
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -381,13 +369,11 @@ int main(int argc, char** argv) {
         sum = lazy(queries, db);
     } else if (FLAGS_strategy == "original") {
         sum = original(queries, db);
-    } else if (FLAGS_strategy == "extra") {
+    } else if (FLAGS_strategy == "additional") {
         sum = extra(queries, db);
     } else if (FLAGS_strategy == "eager") {
         sum = eager(queries, db);
     }
-
-    cout << "checksum:\t" << sum << endl;
 
     delete db;
 
