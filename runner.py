@@ -4,11 +4,12 @@ import sys
 from datetime import datetime
 
 
-iters = 2
+iters = 5
 
 
 def experiment1():
-    print("Experiment 1")
+    # print("Experiment 1")
+    print('iter,distribution,queries,strategy,domain,leaf size,range size,avg,min,max,tree time,update time,additional time,results separation,query execution,total time')
 
     strategies = [
         'lazy',
@@ -18,17 +19,22 @@ def experiment1():
     ]
     queries = [
         10,
-        # 100,
-        # 1000,
-        # 10000,
-        # 100000,
+        100,
+        1000,
+        10000,
+        100000,
     ]
+    leaf_size = 100000
+    range_size = 100000
+    domain = 1000000
 
     for strategy in strategies:
         for num_queries in queries:
             for i in range(iters):
-                command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size=1000000 --leaf_size=100000 --range_size=1000"
-                os.system(command)
+                command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                res = subprocess.getoutput(command)
+                print(res)
+                # os.system(command)
 
 
 def experiment4():
