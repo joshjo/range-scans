@@ -14,9 +14,7 @@ struct Result {
     long leaf_size;
     long range_size;
     long domain;
-    long interval_max_width;
-    long interval_min_width;
-    long interval_avg_width;
+    long * leafs_values;
     double tree_time;
     double update_time;
     double extra_time;
@@ -28,7 +26,7 @@ struct Result {
         int i,
         string dst, int nq, string str,
         long d, long ls, long rs,
-        long iaw, long idw, long itw,
+        long lv,
         double tt, double ut, double et,
         double dbt, double rst,
         double t
@@ -43,9 +41,7 @@ struct Result {
         leaf_size = ls;
         range_size = rs;
 
-        interval_max_width = itw;
-        interval_min_width = idw;
-        interval_avg_width = iaw;
+        leafs_values = lv;
 
         tree_time = tt;
         update_time = ut;
@@ -61,7 +57,7 @@ struct Result {
         cout << iter << ",";
         cout << distribution << "," << number_queries << "," << strategy << ",";
         cout << domain << "," << leaf_size << "," << range_size << ",";
-        cout << interval_avg_width << "," << interval_min_width << "," << interval_max_width << ",";
+        cout << leafs_values[0] << "," << leafs_values[1] << "," << leafs_values[2] << "," << leafs_values[3] << ",";
         cout << tree_time << "," << update_time << "," << extra_time << ",";
         cout << results_separation_time << "," << db_exec_time << ",";
         cout << total_time;

@@ -174,7 +174,7 @@ long extra(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values[0], leafs_values[1], leafs_values[2],
+        leaf_values,
         tree_time, tree->update_time, extra_time,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time
@@ -256,7 +256,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_iter,
         FLAGS_distribution, queries.size(), FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values[0], leafs_values[1], leafs_values[2],
+        leaf_values,
         tree_time, tree->update_time, 0,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time
@@ -336,7 +336,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         FLAGS_iter,
         FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values[0], leafs_values[1], leafs_values[2],
+        leaf_values,
         tree_time, tree->update_time, 0,
         db_exec_time, allocation_time,
         allocation_time + db_exec_time + tree_time
