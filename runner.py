@@ -20,17 +20,17 @@ def experiment1():
     queries = [
         10,
         100,
-        # 1000,
-        # 10000,
-        # 100000,
-        # 1000000,
+        1000,
+        10000,
+        100000,
+        1000000,
     ]
     leaf_size = 100000
     range_size = 100000
     domain = 1000000
 
-    for strategy in strategies:
-        for num_queries in queries:
+    for num_queries in queries:
+        for strategy in strategies:
             for i in range(iters):
                 command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
                 res = subprocess.getoutput(command)
@@ -51,8 +51,8 @@ def experiment4():
         100000,
     ]
 
-    for strategy in strategies:
-        for query_size in queries:
+    for query_size in queries:
+        for strategy in strategies:
             for i in range(iters):
                 # print(datetime.now())
                 command = "./main.out --strategy=%s --distribution=zipf --queries=%d --key_domain_size=1000000 --leaf_size=100000 --range_size=1000" % (strategy, query_size)
