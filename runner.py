@@ -12,10 +12,10 @@ def experiment1():
     print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree time,update time,additional time,results separation,query execution,total time')
 
     strategies = [
-        'lazy',
-        'eager',
-        'additional',
-        # 'original',
+        # 'lazy',
+        # 'eager',
+        # 'additional',
+        'original',
     ]
     queries = [
         10,

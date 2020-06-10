@@ -83,7 +83,9 @@ long original(vector <Tinterval> & queries, rocksdb::DB* db) {
     auto et_1 = chrono::system_clock::now();
     delete it;
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    cout << "Time: " << elapsed_seconds.count() << endl;
+    cout << FLAGS_iter << "," << FLAGS_distribution << "," << FLAGS_queries;
+    cout << "," << elapsed_seconds.count() << endl;
+    // cout << "Time: " << elapsed_seconds.count() << endl;
     return sum;
 }
 
