@@ -2,6 +2,5 @@
 *.o
 .vscode/
 .idea/
-results/
 output/
 *.dSYM
