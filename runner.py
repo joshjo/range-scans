@@ -4,18 +4,16 @@ import sys
 from datetime import datetime
 
 
-iters = 5
-
-
 def experiment1():
     # print("Experiment 1")
-    print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree time,update time,additional time,results separation,query execution,total time')
+    print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree building,query indexing,post filtering,db execution,total time')
 
+    iters = 1
     strategies = [
-        # 'lazy',
-        # 'eager',
-        # 'additional',
-        'original',
+        'lazy',
+        'eager',
+        'additional',
+        # 'original',
     ]
     queries = [
         10,
@@ -23,22 +21,24 @@ def experiment1():
         1000,
         10000,
         100000,
-        1000000,
+        # 1000000,
     ]
-    leaf_size = 100000
+    leaf_size = 1000000
     range_size = 100000
     domain = 1000000
 
     for num_queries in queries:
         for strategy in strategies:
             for i in range(iters):
-                command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                # command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                command = f"./new.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
                 res = subprocess.getoutput(command)
                 print(res)
                 # os.system(command)
 
 
 def experiment4():
+    iters = 5
     distribution = "zipf"
     strategies = [
         'lazy',

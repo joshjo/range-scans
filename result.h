@@ -1,7 +1,7 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "../interval-base-tree/src/tree.h"
+#include "../interval-base-tree/src/newtree.h"
 
 
 using namespace std;
@@ -14,22 +14,20 @@ struct Result {
     long leaf_size;
     long range_size;
     long domain;
-    long unsigned * leafs_values;
-    double tree_time;
-    double update_time;
-    double extra_time;
+    long * leafs_values;
+    double tree_building_time;
+    double query_indexing_time;
+    double post_filtering_time;
     double db_exec_time;
-    double results_separation_time;
     double total_time;
 
     Result(
         int i,
         string dst, int nq, string str,
         long d, long ls, long rs,
-        long unsigned * lv,
-        double tt, double ut, double et,
-        double rst, double dbt,
-        double t
+        long * lv,
+        double tbt, double qit,
+        double pft, double det
     ) {
         iter = i;
 
@@ -43,14 +41,13 @@ struct Result {
 
         leafs_values = lv;
 
-        tree_time = tt;
-        update_time = ut;
-        extra_time = et;
+        tree_building_time = tbt;
+        query_indexing_time = qit;
 
-        results_separation_time = rst;
-        db_exec_time = dbt;
+        post_filtering_time = pft;
+        db_exec_time = det;
 
-        total_time = t;
+        total_time = tbt + qit + pft + det;
     }
 
     void printCSV() {
@@ -58,8 +55,8 @@ struct Result {
         cout << distribution << "," << number_queries << "," << strategy << ",";
         cout << domain << "," << leaf_size << "," << range_size << ",";
         cout << leafs_values[0] << "," << leafs_values[1] << "," << leafs_values[2] << "," << leafs_values[3] << ",";
-        cout << tree_time << "," << update_time << "," << extra_time << ",";
-        cout << results_separation_time << "," << db_exec_time << ",";
+        cout << tree_building_time << "," << query_indexing_time << ",";
+        cout << post_filtering_time << "," << db_exec_time << ",";
         cout << total_time;
         cout << endl;
     }
