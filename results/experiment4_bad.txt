@@ -1,0 +1,147 @@
+Experiment 4
+2020-05-24 08:43:14.259702
+100000
+tree time	0.135672
+update time	0.0475816
+allocation	0.427148
+db execution	343.096
+total time	343.659
+checksum:	2245920508200000
+./main.out --strategy=lazy --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 08:48:59.549293
+100000
+tree time	0.138995
+update time	0.0494001
+allocation	0.429058
+db execution	342.554
+total time	343.122
+checksum:	2245920508200000
+./main.out --strategy=lazy --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 08:54:42.842741
+100000
+tree time	0.138465
+update time	0.0492674
+allocation	0.427288
+db execution	342.491
+total time	343.056
+checksum:	2245920508200000
+./main.out --strategy=lazy --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:00:26.084090
+100000
+tree time	0.14135
+update time	0.0501762
+allocation	0.427766
+db execution	342.473
+total time	343.042
+checksum:	2245920508200000
+./main.out --strategy=lazy --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:06:09.326943
+100000
+tree time	0.142024
+update time	0.0505509
+allocation	0.426806
+db execution	342.751
+total time	343.32
+checksum:	2245920508200000
+./main.out --strategy=lazy --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:11:52.830252
+100000
+tree time	0.155516
+update time	0.0667906
+allocation	0.427581
+db execution	340.547
+total time	341.13
+checksum:	2245920508200000
+./main.out --strategy=eager --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:17:34.147271
+100000
+tree time	0.15457
+update time	0.0663494
+allocation	0.428147
+db execution	340.738
+total time	341.321
+checksum:	2245920508200000
+./main.out --strategy=eager --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:23:15.645792
+100000
+tree time	0.156525
+update time	0.0671934
+allocation	0.453683
+db execution	340.881
+total time	341.492
+checksum:	2245920508200000
+./main.out --strategy=eager --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:28:57.320370
+100000
+tree time	0.154503
+update time	0.0663227
+allocation	0.427963
+db execution	340.356
+total time	340.939
+checksum:	2245920508200000
+./main.out --strategy=eager --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:34:38.426016
+100000
+tree time	0.156062
+update time	0.0671957
+allocation	0.427247
+db execution	341.101
+total time	341.685
+checksum:	2245920508200000
+./main.out --strategy=eager --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:40:20.296411
+100000
+tree time	0.111417
+update time	0.0109976
+extra time 	0.0404252
+allocation	0.427808
+db execution	175.257
+total time	175.836
+checksum:	1120636934319846
+./main.out --strategy=extra --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:43:16.314914
+100000
+tree time	0.111032
+update time	0.0109924
+extra time 	0.0403018
+allocation	0.428824
+db execution	175.625
+total time	176.206
+checksum:	1120636934319846
+./main.out --strategy=extra --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:46:12.705019
+100000
+tree time	0.109242
+update time	0.0108385
+extra time 	0.0407577
+allocation	0.429854
+db execution	175.658
+total time	176.238
+checksum:	1120636934319846
+./main.out --strategy=extra --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:49:09.125335
+100000
+tree time	0.109266
+update time	0.0108395
+extra time 	0.0407397
+allocation	0.428903
+db execution	174.784
+total time	175.363
+checksum:	1120636934319846
+./main.out --strategy=extra --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:52:04.670417
+100000
+tree time	0.074577
+update time	0.00736719
+extra time 	0.0404331
+allocation	0.428104
+db execution	175.326
+total time	175.869
+checksum:	1120636934319846
+./main.out --strategy=extra --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 09:55:00.702405
+100000
+Time: 3423.51
+checksum:	2245920508200000
+./main.out --strategy=original --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 10:52:04.374520
+100000
+Time: 3425.11
+checksum:	2245920508200000
+./main.out --strategy=original --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 11:49:09.665347
+100000
+Time: 3446.94
+checksum:	2245920508200000
+./main.out --strategy=original --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 12:46:36.783312
+100000
+Time: 3542.07
+checksum:	2245920508200000
+./main.out --strategy=original --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=10002020-05-24 13:45:39.029624
+100000
+Time: 3429.61
+checksum:	2245920508200000
+./main.out --strategy=original --distribution=zipf --queries=100000 --key_domain_size=1000000 --leaf_size=100000 --range_size=1000
