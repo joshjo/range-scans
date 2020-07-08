@@ -92,7 +92,7 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     long sum = 0;
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
-    QMapEager <Traits <T>> * qMap = new QMapEager <Traits <T>>();
+    QMapExtra <Traits <T>> * qMap = new QMapExtra <Traits <T>>();
     Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
 
     double tree_building_time = 0;
