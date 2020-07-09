@@ -8,7 +8,7 @@ def experiment1():
     # print("Experiment 1")
     print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree building,query indexing,post filtering,db execution,total time')
 
-    iters = 1
+    iters = 5
     strategies = [
         'lazy',
         'eager',
@@ -23,7 +23,7 @@ def experiment1():
         100000,
         # 1000000,
     ]
-    leaf_size = 1000000
+    leaf_size = 100000
     range_size = 100000
     domain = 1000000
 
