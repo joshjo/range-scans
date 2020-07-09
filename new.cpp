@@ -106,7 +106,8 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    tree_building_time = elapsed_seconds.count();
+    tree_building_time = elapsed_seconds.count() - tree->qMap->elapsedTime();
+    // cout << "tree_building_time: " << tree_building_time << endl;
 
     st_1 = chrono::system_clock::now();
     LeafTree<Traits <T>> leaftree;
@@ -128,6 +129,8 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     et_1 = chrono::system_clock::now();
     elapsed_seconds = et_1 - st_1;
     query_indexing_time = elapsed_seconds.count();
+
+    // cout << "query_indexing_time: " << query_indexing_time << endl;
 
     for (int i = 0; i < nodes.size(); i += 1) {
         auto st_2 = std::chrono::system_clock::now();
@@ -214,6 +217,9 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     query_indexing_time = tree->qMap->elapsedTime();
     tree_building_time = elapsed_seconds.count() - query_indexing_time;
+
+    // cout << "tree_building_time : " << tree_building_time << endl;
+    // cout << "query_indexing_time: " << query_indexing_time << endl;
 
     for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
@@ -303,6 +309,8 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
     query_indexing_time = tree->qMap->elapsedTime();
     tree_building_time = elapsed_seconds.count() - query_indexing_time;
+    // cout << "tree_building_time : " << tree_building_time << endl;
+    // cout << "query_indexing_time: " << query_indexing_time << endl;
 
     for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
