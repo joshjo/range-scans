@@ -6,7 +6,7 @@ from datetime import datetime
 
 def experiment1():
     # print("Experiment 1")
-    print('iter,distribution,num queries,strategy,domain,leaf size,range size,num leafs,avg,min,max,tree building,query indexing,post filtering,db execution,total time')
+    print('iter,distribution,num queries,strategy,domain,leaf size,range size,avg node range,num leafs,tree depth,tree building,query mapping,post filtering,db execution,total time')
 
     iters = 5
     strategies = [

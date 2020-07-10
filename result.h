@@ -54,7 +54,7 @@ struct Result {
         cout << iter << ",";
         cout << distribution << "," << number_queries << "," << strategy << ",";
         cout << domain << "," << leaf_size << "," << range_size << ",";
-        cout << leafs_values[0] << "," << leafs_values[1] << "," << leafs_values[2] << "," << leafs_values[3] << ",";
+        cout << leafs_values[0] << "," << leafs_values[3] << "," << leafs_values[4] << ",";
         cout << tree_building_time << "," << query_indexing_time << ",";
         cout << post_filtering_time << "," << db_exec_time << ",";
         cout << total_time;
