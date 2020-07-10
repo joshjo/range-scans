@@ -1,4 +1,4 @@
-iter,queries,strategy,tree time,query mapping,post filtering,db execution,total time
+iter,num queries,strategy,tree time,query mapping,post filtering,db execution,total time
 3,10,additional,0.000015454,0.000028915,0.03,0.2240843333,0.258434235
 3,10,eager,0.00005111333333,0.00002153333333,0.04,0.2254273333,0.2610056467
 3,10,lazy,0.000058859,0.00005717933333,0.03,0.229456,0.264192959
