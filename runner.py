@@ -23,6 +23,7 @@ def experiment1():
         100000,
         # 1000000,
     ]
+    distribution = 'zipf'
     leaf_size = 100000
     range_size = 100000
     domain = 1000000
@@ -31,7 +32,7 @@ def experiment1():
         for strategy in strategies:
             for i in range(iters):
                 # command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
-                command = f"./new.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                command = f"./new.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
                 res = subprocess.getoutput(command)
                 print(res)
                 # os.system(command)
