@@ -52,6 +52,7 @@ void additional(vector <Tinterval> & queries) {
     for (int i = 0; i < queries.size(); i += 1) {
         leaftree.assign(&queries[i]);
     }
+    tree->qMap->indexed = leaftree.numIndexedQueries();
 
     end_time = std::chrono::system_clock::now();
     elapsed_seconds = end_time - start_time;

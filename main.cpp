@@ -244,8 +244,8 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
 
         st_2 = std::chrono::system_clock::now();
 
-        for (size_t i = 0; i < itq->second->size(); i++) {
-            Tinterval * query = itq->second->at(i);
+        for (size_t i = 0; i < itq->second.size(); i++) {
+            Tinterval * query = itq->second.at(i);
             Tinterval limits = itq->first->interval.intersection(*query);
 
             if (limits.length() == 0) {
@@ -335,7 +335,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
 
         st_2 = std::chrono::system_clock::now();
 
-        for (auto itv = itq->second->begin(); itv != itq->second->end(); itv++) {
+        for (auto itv = itq->second.begin(); itv != itq->second.end(); itv++) {
             Tinterval * query = itv->first;
             Tinterval limits = itv->second;
 

@@ -62,21 +62,24 @@ def experiment4():
 
 
 def profiling():
-    iters = 3
+    iters = 5
     strategies = [
         'additional',
         'lazy',
         'eager',
     ]
     queries = [
+        1000,
+        10000,
         100000,
+        1000000,
     ]
     distribution = 'normal'
     leaf_size = 100000
     range_size = 100000
     domain = 1000000
 
-    print('iter,strategy,num queries,domain size,leaf size,range size,distribution,insert ops,transfer ops,share ops,merge ops,insert time,transfer time,share time,merge time,mapping time,tree time,total time')
+    print('iter,strategy,num queries,domain size,leaf size,range size,distribution,queries indexed,insert ops,transfer ops,share ops,merge ops,insert time,transfer time,share time,merge time,mapping time,tree time,total time')
 
     for query_size in queries:
         for strategy in strategies:
