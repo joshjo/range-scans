@@ -21,7 +21,8 @@ def experiment1():
         1000,
         10000,
         100000,
-        # 1000000,
+        1000000,
+        10000000,
     ]
     distribution = 'zipf'
     leaf_size = 100000
@@ -73,6 +74,8 @@ def profiling():
         10000,
         100000,
         1000000,
+        10000000,
+        100000000,
     ]
     distribution = 'normal'
     leaf_size = 100000
