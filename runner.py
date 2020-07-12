@@ -61,6 +61,31 @@ def experiment4():
                 os.system(command)
 
 
+def profiling():
+    iters = 3
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        100000,
+    ]
+    distribution = 'normal'
+    leaf_size = 100000
+    range_size = 100000
+    domain = 1000000
+
+    print('iter,strategy,num queries,domain size,leaf size,range size,distribution,insert ops,transfer ops,share ops,merge ops,insert time,transfer time,share time,merge time,mapping time,tree time,total time')
+
+    for query_size in queries:
+        for strategy in strategies:
+            for i in range(iters):
+                # print(datetime.now())
+                command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                # sys.stdout.write(command)
+                os.system(command)
+
+
 if __name__ == '__main__':
-    # experiment4()
-    experiment1()
+    profiling()
