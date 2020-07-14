@@ -23,9 +23,16 @@ void printTimes(Tree <Traits <T> > * & tree, double total_time, double mapping_t
     cout << FLAGS_leaf_size << "," << FLAGS_range_size << "," << FLAGS_distribution << ",";
     cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
     cout << tree->qMap->csv() << ",";
-    cout << (mapping_time > 0 ? mapping_time : tree->qMap->elapsedTime()) << ",";
-    cout << total_time - tree->qMap->elapsedTime() << ",";
-    cout << total_time + mapping_time;
+    if (mapping_time > 0) {
+        cout << mapping_time << ",";
+        cout << total_time - tree->qMap->elapsedTime() << ",";
+        cout << total_time - tree->qMap->elapsedTime() + mapping_time;
+    } else {
+        cout << tree->qMap->elapsedTime() << ",";
+        cout << total_time - tree->qMap->elapsedTime() << ",";
+        cout << total_time;
+    }
+
     cout << endl;
 }
 

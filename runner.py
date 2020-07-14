@@ -78,10 +78,12 @@ def profiling():
         100000000,
     ]
     leaf_sizes = [
-        100,
-        1000,
-        10000,
+        # 100,
+        # 1000,
         100000,
+        250000,
+        500000,
+        750000,
         1000000,
     ]
     range_sizes = [
@@ -91,19 +93,19 @@ def profiling():
         # 100000,
     ]
     distribution = 'normal'
-    leaf_size = 10000
+    leaf_size = 100000
     range_size = 100000
-    domain = 100000
-    query_size = 1000000
+    domain = 1000000
+    query_size = 10000
 
     # query_size = queries[0]
 
     print('iter,strategy,num queries,domain size,leaf size,range size,distribution,avg node length,# leaf nodes,max tree depth,queries indexed,insert ops,transfer ops,share ops,merge ops,insert time,transfer time,share time,merge time,mapping time,tree time,total time')
 
-    # for query_size in queries:
     for strategy in strategies:
-        # for leaf_size in leaf_sizes:
-        for range_size in range_sizes:
+        # for query_size in queries:
+        for leaf_size in leaf_sizes:
+        # for range_size in range_sizes:
             for i in range(iters):
                 # print(datetime.now())
                 command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
