@@ -16,9 +16,12 @@ DEFINE_int64(seed, 100, "Random Seed");
 
 
 void printTimes(Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+    T * leafsData = tree->getLeafsData();
+
     cout << FLAGS_iter << ",";
     cout << FLAGS_strategy << "," << FLAGS_queries << "," << FLAGS_key_domain_size << ",";
     cout << FLAGS_leaf_size << "," << FLAGS_range_size << "," << FLAGS_distribution << ",";
+    cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
     cout << tree->qMap->csv() << ",";
     cout << (mapping_time > 0 ? mapping_time : tree->qMap->elapsedTime()) << ",";
     cout << total_time - tree->qMap->elapsedTime() << ",";
