@@ -95,8 +95,8 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     QMapExtra <Traits <T>> * qMap = new QMapExtra <Traits <T>>();
     Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
 
-    double tree_building_time = 0;
-    double query_indexing_time = 0;
+    double tree_total_time = 0;
+    double mapping_time = 0;
     double post_filtering_time = 0;
     double db_exec_time = 0;
 
@@ -106,8 +106,7 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    tree_building_time = elapsed_seconds.count() - tree->qMap->elapsedTime();
-    // cout << "tree_building_time: " << tree_building_time << endl;
+    tree_total_time = elapsed_seconds.count();
 
     st_1 = chrono::system_clock::now();
     LeafTree<Traits <T>> leaftree;
@@ -128,13 +127,12 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
 
     et_1 = chrono::system_clock::now();
     elapsed_seconds = et_1 - st_1;
-    query_indexing_time = elapsed_seconds.count();
+    mapping_time = elapsed_seconds.count();
+    tree->qMap->indexed = leaftree.numIndexedQueries();
 
-    // cout << "query_indexing_time: " << query_indexing_time << endl;
-
-    for (int i = 0; i < nodes.size(); i += 1) {
+    for (auto itq = nodes.begin(); itq < nodes.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
-        Tinterval leaf = nodes[i]->interval;
+        Tinterval leaf = (*itq)->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
         string ** temp = new string * [leaf.length()];
@@ -154,22 +152,21 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
         db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
-
-        for(int j = 0; j < nodes[i]->hashmap.size(); j++) {
-            Tinterval * query = nodes[i]->hashmap[j].first;
-            Tinterval limits = nodes[i]->hashmap[j].second;
+        for(size_t i = 0; i < (*itq)->hashmap.size(); i++) {
+            Tinterval * query = (*itq)->hashmap[i].first;
+            Tinterval limits = (*itq)->hashmap[i].second;
 
             if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
-                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                }
-                ofile.close();
+                // string file_name = getFileName(*query);
+                // ofstream ofile(file_name, std::ios_base::app);
+                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                //     sum += stoi(*temp[i]);
+                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                // }
+                // ofile.close();
             } else {
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
+                for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
+                    sum += stoi(*temp[j]);
                 }
             }
 
@@ -180,21 +177,16 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
-
     Result result(
         FLAGS_iter,
         FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values,
-        tree_building_time, query_indexing_time,
         post_filtering_time, db_exec_time
     );
-    result.printCSV();
+    result.printCSV(tree, tree_total_time, mapping_time);
 
     return sum;
 }
-
 
 
 long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
@@ -204,8 +196,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
     Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
 
-    double tree_building_time = 0;
-    double query_indexing_time = 0;
+    double tree_total_time = 0;
     double post_filtering_time = 0;
     double db_exec_time = 0;
 
@@ -215,11 +206,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    query_indexing_time = tree->qMap->elapsedTime();
-    tree_building_time = elapsed_seconds.count() - query_indexing_time;
-
-    // cout << "tree_building_time : " << tree_building_time << endl;
-    // cout << "query_indexing_time: " << query_indexing_time << endl;
+    tree_total_time = elapsed_seconds.count();
 
     for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
@@ -243,9 +230,8 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
-
         for (size_t i = 0; i < itq->second.size(); i++) {
-            Tinterval * query = itq->second.at(i);
+            Tinterval * query = itq->second[i];
             Tinterval limits = itq->first->interval.intersection(*query);
 
             if (limits.length() == 0) {
@@ -253,16 +239,16 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
             }
 
             if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
-                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                }
-                ofile.close();
+                // string file_name = getFileName(*query);
+                // ofstream ofile(file_name, std::ios_base::app);
+                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                //     sum += stoi(*temp[i]);
+                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                // }
+                // ofile.close();
             } else {
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
+                for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
+                    sum += stoi(*temp[j]);
                 }
             }
 
@@ -273,17 +259,13 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
-
     Result result(
         FLAGS_iter,
         FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values,
-        tree_building_time, query_indexing_time,
         post_filtering_time, db_exec_time
     );
-    result.printCSV();
+    result.printCSV(tree, tree_total_time, 0);
 
     return sum;
 }
@@ -296,8 +278,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     QMapEager <Traits <T>> * qMap = new QMapEager <Traits <T>>();
     Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
 
-    double tree_building_time = 0;
-    double query_indexing_time = 0;
+    double tree_total_time = 0;
     double post_filtering_time = 0;
     double db_exec_time = 0;
 
@@ -307,10 +288,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     auto et_1 = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    query_indexing_time = tree->qMap->elapsedTime();
-    tree_building_time = elapsed_seconds.count() - query_indexing_time;
-    // cout << "tree_building_time : " << tree_building_time << endl;
-    // cout << "query_indexing_time: " << query_indexing_time << endl;
+    tree_total_time = elapsed_seconds.count();
 
     for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
@@ -334,22 +312,21 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         db_exec_time += elapsed_timer.count();
 
         st_2 = std::chrono::system_clock::now();
-
-        for (auto itv = itq->second.begin(); itv != itq->second.end(); itv++) {
-            Tinterval * query = itv->first;
-            Tinterval limits = itv->second;
+        for (size_t i = 0; i < itq->second.size(); i++) {
+            Tinterval * query = itq->second[i].first;
+            Tinterval limits = itq->second[i].second;
 
             if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
-                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                }
-                ofile.close();
+                // string file_name = getFileName(*query);
+                // ofstream ofile(file_name, std::ios_base::app);
+                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                //     sum += stoi(*temp[i]);
+                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                // }
+                // ofile.close();
             } else {
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += stoi(*temp[i]);
+                for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
+                    sum += stoi(*temp[j]);
                 }
             }
 
@@ -360,17 +337,13 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
     }
     delete it;
 
-    T * leafs_values = tree->getLeafsData();
-
     Result result(
         FLAGS_iter,
         FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
         FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        leafs_values,
-        tree_building_time, query_indexing_time,
         post_filtering_time, db_exec_time
     );
-    result.printCSV();
+    result.printCSV(tree, tree_total_time, 0);
 
     return sum;
 }

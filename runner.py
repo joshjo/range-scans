@@ -5,15 +5,13 @@ from datetime import datetime
 
 
 def experiment1():
-    # print("Experiment 1")
-    print('iter,distribution,num queries,strategy,domain,leaf size,range size,avg node range,num leafs,tree depth,tree building,query mapping,post filtering,db execution,total time')
+    print('iter,distribution,num queries,strategy,domain,leaf size,range size,avg node range,num leafs,tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops, mapping share ops, mapping merge ops,mapping insert time, mapping transfer time, mapping share time, mapping merge time, mapping total time, additional tree time, tree building time, mapping + tree building time,post filtering time,db execution time,total time')
 
     iters = 5
     strategies = [
         'lazy',
         'eager',
         'additional',
-        # 'original',
     ]
     queries = [
         10,
@@ -21,10 +19,9 @@ def experiment1():
         1000,
         10000,
         100000,
-        1000000,
-        10000000,
+        # 1000000,
     ]
-    distribution = 'zipf'
+    distribution = 'normal'
     leaf_size = 100000
     range_size = 100000
     domain = 1000000
@@ -32,11 +29,8 @@ def experiment1():
     for num_queries in queries:
         for strategy in strategies:
             for i in range(iters):
-                # command = f"./main.out --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
-                command = f"./new.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
-                res = subprocess.getoutput(command)
-                print(res)
-                # os.system(command)
+                command = f"./main.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+                os.system(command)
 
 
 def experiment4():
@@ -114,4 +108,5 @@ def profiling():
 
 
 if __name__ == '__main__':
-    profiling()
+    experiment1()
+    # profiling()
