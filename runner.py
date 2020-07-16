@@ -14,12 +14,12 @@ def experiment1():
         'additional',
     ]
     queries = [
-        10,
-        100,
-        1000,
-        10000,
-        100000,
-        # 1000000,
+        # 10,
+        # 100,
+        # 1000,
+        # 10000,
+        # 100000,
+        1000000,
     ]
     distribution = 'normal'
     leaf_size = 100000
