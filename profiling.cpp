@@ -9,6 +9,7 @@ DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(key_domain_size, 1000000, "Key domain size");
 DEFINE_int64(leaf_size, 100000, "Leaf size");
 DEFINE_int64(range_size, 100000, "Range of queries");
+DEFINE_bool(random_range_size, false, "Random Range of queries");
 DEFINE_string(strategy, "raw", "Strategy");
 DEFINE_string(distribution, "normal", "Random Distribution");
 DEFINE_int64(iter, 0, "Define the iteration number");
@@ -115,9 +116,9 @@ int main(int argc, char** argv) {
     vector <Tinterval> queries;
 
     if (FLAGS_distribution == "zipf") {
-        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
+        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size);
     } else {
-        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
+        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size);
     }
 
     if (FLAGS_strategy == "lazy") {
