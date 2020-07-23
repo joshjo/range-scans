@@ -57,9 +57,10 @@ def experiment_3a():
         1000000,
     ]
     leaf_sizes = [
+        1000,
+        10000,
         100000,
         250000,
-        750000,
     ]
     range_sizes = [
         100000,
@@ -82,9 +83,10 @@ def experiment_3b():
         1000000,
     ]
     leaf_sizes = [
+        1000,
+        10000,
         100000,
         250000,
-        750000,
     ]
     range_sizes = [
         10000,
@@ -120,4 +122,7 @@ def experiment_3c():
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true')
 
 if __name__ == '__main__':
-    experiment_3c()
+    print("############# 3A #################")
+    experiment_3a()
+    # print("############# 3B #################")
+    # experiment_3b()
