@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false'):
-    print('iter,strategy,num queries,domain size,leaf size,range size,distribution,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,total time')
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,total time')
 
     for strategy in strategies:
         for query_size in queries:
@@ -98,6 +98,7 @@ def experiment_3b():
 
 
 def experiment_3c():
+    print("############## 3 C #################")
     iters = 5
 
     strategies = [
@@ -109,12 +110,14 @@ def experiment_3c():
         1000000,
     ]
     leaf_sizes = [
+        "max_range",
+        2500000,
         100000,
-        250000,
-        750000,
+        10000,
+        1000,
     ]
     range_sizes = [
-        10000,
+        1000000,
     ]
     distribution = 'normal'
     domain = 1000000
@@ -122,7 +125,4 @@ def experiment_3c():
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true')
 
 if __name__ == '__main__':
-    print("############# 3A #################")
-    experiment_3a()
-    # print("############# 3B #################")
-    # experiment_3b()
+    experiment_3c()
