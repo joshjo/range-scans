@@ -92,6 +92,10 @@ void eager(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     chrono::duration<double> elapsed_seconds = end_time - start_time;
     double total_time = elapsed_seconds.count();
 
+    vector<Node<T> *> leafs;
+    tree->root->getLeafs(leafs);
+    tree->root->recursiveValidate();
+
     printTimes(queriesMeta, tree, total_time);
 }
 
