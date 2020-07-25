@@ -41,7 +41,7 @@ bool is_number(const std::string& s)
         s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
-vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int percentage_point_queries=0) {
+vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int min_range_size=0, int max_range_size=0, int percentage_point_queries=0) {
     srand(SEED);
     vector<Tinterval> result;
 
@@ -50,7 +50,7 @@ vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, boo
         if ((rand() % 100) < percentage_point_queries) {
             rs = 1;
         } else if (random_range_sizes) {
-            rs = rand() % (domain_size - 2) % range_size;
+            rs = min_range_size + rand() % (max_range_size - min_range_size);
         }
         T max_random = domain_size - rs;
         T rnd = rand() % max_random;
@@ -60,7 +60,7 @@ vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, boo
     return result;
 }
 
-vector<Tinterval> create_queries_zipf(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int percentage_point_queries=0) {
+vector<Tinterval> create_queries_zipf(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int min_range_size=0, int max_range_size=0, int percentage_point_queries=0) {
     vector<Tinterval> result;
     T max_random = domain_size - range_size;
     std::mt19937 gen(SEED);

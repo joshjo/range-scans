@@ -10,6 +10,8 @@ DEFINE_int64(key_domain_size, 1000000, "Key domain size");
 DEFINE_string(leaf_size, "100000", "Leaf size");
 DEFINE_int64(range_size, 100000, "Range of queries");
 DEFINE_bool(random_range_size, false, "Use random range of queries");
+DEFINE_int64(min_range_size, 100000, "Min random range of queries");
+DEFINE_int64(max_range_size, 100000, "Max random range of queries");
 DEFINE_int64(percentage_point_queries, 0, "% of Pointe Queries");
 DEFINE_string(strategy, "raw", "Strategy");
 DEFINE_string(distribution, "normal", "Random Distribution");
@@ -124,12 +126,13 @@ int main(int argc, char** argv) {
     T leaf_size = 0;
 
     if (FLAGS_distribution == "zipf") {
-        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_percentage_point_queries);
+        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     } else {
-        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_percentage_point_queries);
+        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
     T * queriesMeta = getQueriesMeta(queries);
+
     if (is_number(FLAGS_leaf_size)) {
         leaf_size = atol(FLAGS_leaf_size.c_str());
     } else if (FLAGS_leaf_size == "max_range") {

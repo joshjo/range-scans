@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 
-def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false'):
+def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0):
     print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,total time')
 
     for strategy in strategies:
@@ -12,7 +12,7 @@ def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, i
             for leaf_size in leaf_sizes:
                 for range_size in range_sizes:
                     for i in range(iters):
-                        command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size}"
+                        command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size}"
                         # sys.stdout.write(command)
                         os.system(command)
 
@@ -32,6 +32,7 @@ def experiment_1a():
         10000,
         100000,
         1000000,
+        10000000,
     ]
     leaf_sizes = [
         100000,
@@ -54,13 +55,14 @@ def experiment_3a():
         'eager',
     ]
     queries = [
-        1000000,
+        100000,
     ]
     leaf_sizes = [
         1000,
         10000,
         100000,
         250000,
+        5000000,
     ]
     range_sizes = [
         100000,
@@ -80,13 +82,14 @@ def experiment_3b():
         'eager',
     ]
     queries = [
-        1000000,
+        100000,
     ]
     leaf_sizes = [
         1000,
         10000,
         100000,
         250000,
+        5000000,
     ]
     range_sizes = [
         10000,
@@ -107,10 +110,11 @@ def experiment_3c():
         'eager',
     ]
     queries = [
-        1000000,
+        100000,
     ]
     leaf_sizes = [
         "max_range",
+        5000000,
         2500000,
         100000,
         10000,
@@ -122,7 +126,9 @@ def experiment_3c():
     distribution = 'normal'
     domain = 1000000
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true')
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true', min_range_size=10000, max_range_size=100000)
 
 if __name__ == '__main__':
+    experiment_3a()
+    experiment_3b()
     experiment_3c()
