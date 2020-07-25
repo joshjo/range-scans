@@ -62,7 +62,7 @@ def experiment_3a():
         10000,
         100000,
         250000,
-        5000000,
+        500000,
     ]
     range_sizes = [
         100000,
@@ -90,7 +90,7 @@ def experiment_3b():
         10000,
         100000,
         250000,
-        5000000,
+        500000,
     ]
     range_sizes = [
         10000,
@@ -115,8 +115,8 @@ def experiment_3c():
     ]
     leaf_sizes = [
         "max_range",
-        5000000,
-        2500000,
+        500000,
+        250000,
         100000,
         10000,
         1000,
@@ -187,5 +187,8 @@ def experiment_62():
 
 
 if __name__ == '__main__':
-    experiment_61()
-    experiment_62()
+    experiment_3a()
+    experiment_3b()
+    experiment_3c()
+    # experiment_61()
+    # experiment_62()
