@@ -45,6 +45,33 @@ def experiment_1a():
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
+def experiment_1b():
+    iters = 5
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        10,
+        100,
+        1000,
+    ]
+    leaf_sizes = [
+        'max_range',
+    ]
+    range_sizes = [
+        10,
+        100,
+        1000,
+    ]
+    distribution = 'normal'
+    domain = 1000000
+
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+
+
 def experiment_3a():
     print("############## 3 A #################")
     iters = 5
@@ -187,8 +214,9 @@ def experiment_62():
 
 
 if __name__ == '__main__':
-    experiment_3a()
-    experiment_3b()
-    experiment_3c()
+    experiment_1b()
+    # experiment_3a()
+    # experiment_3b()
+    # experiment_3c()
     # experiment_61()
     # experiment_62()
