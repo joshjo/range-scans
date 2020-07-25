@@ -4,3 +4,4 @@
 .idea/
 output/
 *.dSYM
+.DS_Store
