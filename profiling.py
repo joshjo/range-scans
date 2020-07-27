@@ -95,10 +95,10 @@ def experiment_3a():
         1000000,
         100000,
         10000,
-        # 1000,
+        1000,
     ]
     range_sizes = [
-        1000000,
+        100000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -123,7 +123,7 @@ def experiment_3b():
         1000000,
         100000,
         10000,
-        # 1000,
+        1000,
     ]
     range_sizes = [
         10000,
@@ -276,12 +276,12 @@ def experiment_64():
 
 
 if __name__ == '__main__':
-    experiment_1a()
-    experiment_1b()
+    # experiment_1a()
+    # experiment_1b()
     experiment_3a()
     experiment_3b()
-    experiment_3c()
-    experiment_61()
-    experiment_62()
-    experiment_63()
-    experiment_64()
+    # experiment_3c()
+    # experiment_61()
+    # experiment_62()
+    # experiment_63()
+    # experiment_64()
