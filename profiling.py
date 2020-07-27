@@ -257,7 +257,7 @@ def experiment_64():
         'eager',
     ]
     queries = [
-        1000000,
+        100000,
     ]
     leaf_sizes = [
         "max_range",
@@ -278,10 +278,10 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    experiment_3a()
-    experiment_3b()
+    # experiment_3a()
+    # experiment_3b()
     # experiment_3c()
     # experiment_61()
     # experiment_62()
     # experiment_63()
-    # experiment_64()
+    experiment_64()
