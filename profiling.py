@@ -4,6 +4,9 @@ import sys
 from datetime import datetime
 
 
+universal_domain = 1000000000
+
+
 def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
     print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,total time')
 
@@ -17,6 +20,7 @@ def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, i
 
 
 def experiment_1a():
+    print("############## 1 A #################")
     iters = 5
 
     strategies = [
@@ -40,12 +44,13 @@ def experiment_1a():
         100000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_1b():
+    print("############## 1 B #################")
     iters = 5
 
     strategies = [
@@ -62,12 +67,13 @@ def experiment_1b():
         'max_range',
     ]
     range_sizes = [
-        10,
-        100,
-        1000,
+        10000,
+        100000,
+        1000000,
+        10000000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
@@ -85,17 +91,17 @@ def experiment_3a():
         100000,
     ]
     leaf_sizes = [
-        1000,
-        10000,
+        10000000,
+        1000000,
         100000,
-        250000,
-        500000,
+        10000,
+        # 1000,
     ]
     range_sizes = [
-        100000,
+        1000000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
@@ -113,17 +119,17 @@ def experiment_3b():
         100000,
     ]
     leaf_sizes = [
-        1000,
-        10000,
+        10000000,
+        1000000,
         100000,
-        250000,
-        500000,
+        10000,
+        # 1000,
     ]
     range_sizes = [
         10000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
@@ -142,19 +148,19 @@ def experiment_3c():
     ]
     leaf_sizes = [
         "max_range",
-        500000,
-        250000,
+        10000000,
+        1000000,
         100000,
         10000,
         1000,
     ]
     range_sizes = [
-        1000000,
+        0,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true', min_range_size=10000, max_range_size=100000)
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true', min_range_size=100, max_range_size=1000)
 
 
 def experiment_61():
@@ -173,14 +179,14 @@ def experiment_61():
         "max_range",
     ]
     range_sizes = [
-        10,
-        100,
         1000,
         10000,
         100000,
+        1000000,
+        10000000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, percentage_point_queries=50)
 
@@ -201,22 +207,81 @@ def experiment_62():
         "max_range",
     ]
     range_sizes = [
-        10,
-        100,
         1000,
         10000,
         100000,
+        1000000,
+        10000000,
     ]
     distribution = 'normal'
-    domain = 1000000
+    domain = universal_domain
 
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, percentage_point_queries=80)
 
 
+def experiment_63():
+    print("############## 6.3 A #################")
+    iters = 5
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        100000,
+    ]
+    leaf_sizes = [
+        "max_range",
+    ]
+    range_sizes = [
+        1000,
+        10000,
+        100000,
+        1000000,
+        10000000,
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, percentage_point_queries=90)
+
+
+def experiment_64():
+    print("############## 6.4 A #################")
+    iters = 5
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        1000000,
+    ]
+    leaf_sizes = [
+        "max_range",
+    ]
+    range_sizes = [
+        1000,
+        10000,
+        100000,
+        1000000,
+        10000000,
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, percentage_point_queries=99)
+
+
 if __name__ == '__main__':
+    experiment_1a()
     experiment_1b()
-    # experiment_3a()
-    # experiment_3b()
-    # experiment_3c()
-    # experiment_61()
-    # experiment_62()
+    experiment_3a()
+    experiment_3b()
+    experiment_3c()
+    experiment_61()
+    experiment_62()
+    experiment_63()
+    experiment_64()
