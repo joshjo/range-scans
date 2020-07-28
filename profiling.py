@@ -4,29 +4,30 @@ import sys
 from datetime import datetime
 
 
-universal_domain = 1000000000
+# universal_domain = 1000000000
+universal_domain = 1000000
 
 
 def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
-    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,total time')
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time')
 
     for strategy in strategies:
         for query_size in queries:
             for leaf_size in leaf_sizes:
                 for range_size in range_sizes:
                     for i in range(iters):
-                        command = f"./runner.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
+                        command = f"./main.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
                         os.system(command)
 
 
 def experiment_1a():
     print("############## 1 A #################")
-    iters = 5
+    iters = 1
 
     strategies = [
         'additional',
-        'lazy',
-        'eager',
+        # 'lazy',
+        # 'eager',
     ]
     queries = [
         10,
@@ -34,8 +35,8 @@ def experiment_1a():
         1000,
         10000,
         100000,
-        1000000,
-        10000000,
+        # 1000000,
+        # 10000000,
     ]
     leaf_sizes = [
         100000,
@@ -179,11 +180,11 @@ def experiment_61():
         "max_range",
     ]
     range_sizes = [
-        1000,
+        # 1000,
         10000,
-        100000,
-        1000000,
-        10000000,
+        # 100000,
+        # 1000000,
+        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -265,9 +266,9 @@ def experiment_64():
     range_sizes = [
         1000,
         10000,
-        100000,
-        1000000,
-        10000000,
+        # 100000,
+        # 1000000,
+        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -276,7 +277,7 @@ def experiment_64():
 
 
 if __name__ == '__main__':
-    # experiment_1a()
+    experiment_1a()
     # experiment_1b()
     # experiment_3a()
     # experiment_3b()
@@ -284,4 +285,4 @@ if __name__ == '__main__':
     # experiment_61()
     # experiment_62()
     # experiment_63()
-    experiment_64()
+    # experiment_64()

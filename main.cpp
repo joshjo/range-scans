@@ -19,8 +19,6 @@
 #include "result.h"
 #include "utils.h"
 
-typedef long T;
-typedef Interval<T> Tinterval;
 
 DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(key_domain_size, 1000000, "Key domain size");
@@ -39,7 +37,59 @@ string outputfolder = "output/";
 
 using namespace std;
 
-int seed = 100;
+// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+//     double tbt, mt, t2t, ttt;
+//     tbt = total_time - tree->qMap->elapsedTime();
+//     T * leafsData = tree->getLeafsData();
+
+//     cout << FLAGS_iter << ",";
+//     cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+//     cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+//     cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+//     cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+//     cout << tree->qMap->csv() << ",";
+//     if (mapping_time > 0) {
+//         t2t = mapping_time;
+//         mt = 0;
+//         ttt = tbt + mapping_time;
+//     } else {
+//         t2t = 0;
+//         mt = tree->qMap->elapsedTime();
+//         ttt = total_time;
+//     }
+//     cout << tbt << "," << mt << "," << t2t << "," << ttt;
+// }
+
+void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+    double tbt, mt, t2t, ttt;
+    tbt = total_time - tree->qMap->elapsedTime();
+    T * leafsData = tree->getLeafsData();
+    vector<Node<T> *> leafs;
+    tree->root->getLeafs(leafs);
+
+
+    cout << "queries        : " << FLAGS_queries << endl;
+    cout << "rangesize      : " << queriesMeta[1] << endl;
+    cout << "avg node length: " << queriesMeta[0] << endl;
+    cout << "leaf nodes     : " << leafsData[3] << endl;
+    cout << "leaf size      : " << FLAGS_leaf_size << endl;
+    // cout << FLAGS_iter << ",";
+    // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+    // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+    // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+    // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+    // cout << tree->qMap->csv() << ",";
+    // if (mapping_time > 0) {
+    //     t2t = mapping_time;
+    //     mt = 0;
+    //     ttt = tbt + mapping_time;
+    // } else {
+    //     t2t = 0;
+    //     mt = tree->qMap->elapsedTime();
+    //     ttt = total_time;
+    // }
+    // cout << tbt << "," << mt << "," << t2t << "," << ttt;
+}
 
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
@@ -92,12 +142,12 @@ long original(vector <Tinterval> & queries, rocksdb::DB* db) {
 }
 
 
-long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
+long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
     long sum = 0;
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
     QMapExtra <Traits <T>> * qMap = new QMapExtra <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
+    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
 
     double tree_total_time = 0;
     double mapping_time = 0;
@@ -126,13 +176,13 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
         leaftree.assign(&queries[i]);
     }
 
-    vector <LeafNode<T> *> nodes = leaftree.nodes();
-    sort(nodes.begin(), nodes.end(), compareInterval);
-
     et_1 = chrono::system_clock::now();
     elapsed_seconds = et_1 - st_1;
     mapping_time = elapsed_seconds.count();
     tree->qMap->indexed = leaftree.numIndexedQueries();
+
+    vector <LeafNode<T> *> nodes = leaftree.nodes();
+    sort(nodes.begin(), nodes.end(), compareInterval);
 
     for (auto itq = nodes.begin(); itq < nodes.end(); itq++) {
         auto st_2 = std::chrono::system_clock::now();
@@ -180,25 +230,21 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db) {
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
-
-    Result result(
-        FLAGS_iter,
-        FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
-        FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        post_filtering_time, db_exec_time
-    );
-    result.printCSV(tree, tree_total_time, mapping_time);
+    printTimes(queriesMeta, tree, 0, 0);
+    cout << "db Exec time : " << db_exec_time << endl;
+    cout << "Postfiltering: " << post_filtering_time << endl;
+    cout << endl;
 
     return sum;
 }
 
 
-long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
+long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
     long sum = 0;
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
     QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
+    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
 
     double tree_total_time = 0;
     double post_filtering_time = 0;
@@ -262,25 +308,22 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db) {
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
+    printTimes(queriesMeta, tree, 0, 0);
+    cout << "db Exec time : " << db_exec_time << endl;
+    cout << "Postfiltering: " << post_filtering_time << endl;
+    cout << endl;
 
-    Result result(
-        FLAGS_iter,
-        FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
-        FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        post_filtering_time, db_exec_time
-    );
-    result.printCSV(tree, tree_total_time, 0);
 
     return sum;
 }
 
 
-long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
+long eager(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
     long sum = 0;
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
     QMapEager <Traits <T>> * qMap = new QMapEager <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(FLAGS_leaf_size, qMap);
+    Tree <Traits <T> > * tree = new Tree <Traits <T>> (leaf_size, qMap);
 
     double tree_total_time = 0;
     double post_filtering_time = 0;
@@ -340,21 +383,17 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db) {
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
-
-    Result result(
-        FLAGS_iter,
-        FLAGS_distribution, FLAGS_queries, FLAGS_strategy,
-        FLAGS_key_domain_size, FLAGS_leaf_size, FLAGS_range_size,
-        post_filtering_time, db_exec_time
-    );
-    result.printCSV(tree, tree_total_time, 0);
+    printTimes(queriesMeta, tree, 0, 0);
+    cout << "db Exec time : " << db_exec_time << endl;
+    cout << "Postfiltering: " << post_filtering_time << endl;
+    cout << endl;
 
     return sum;
 }
 
 
 int main(int argc, char** argv) {
-    srand (seed);
+    srand (FLAGS_seed);
 
     gflags::SetUsageMessage("Main");
     gflags::SetVersionString("1.0.0");
@@ -362,9 +401,9 @@ int main(int argc, char** argv) {
     vector <Tinterval> queries;
 
     if (FLAGS_distribution == "zipf") {
-        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
+        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     } else {
-        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size);
+        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
     rocksdb::DB* db;
@@ -378,14 +417,24 @@ int main(int argc, char** argv) {
 
     long sum = 0;
 
+    T leaf_size = 0;
+
+    T * queriesMeta = getQueriesMeta(queries);
+
+    if (is_number(FLAGS_leaf_size)) {
+        leaf_size = atol(FLAGS_leaf_size.c_str());
+    } else if (FLAGS_leaf_size == "max_range") {
+        leaf_size = queriesMeta[2];
+    }
+
     if (FLAGS_strategy == "lazy") {
-        sum = lazy(queries, db);
+        sum = lazy(queries, db, leaf_size, queriesMeta);
     } else if (FLAGS_strategy == "original") {
         sum = original(queries, db);
     } else if (FLAGS_strategy == "additional") {
-        sum = additional(queries, db);
+        sum = additional(queries, db, leaf_size, queriesMeta);
     } else if (FLAGS_strategy == "eager") {
-        sum = eager(queries, db);
+        sum = eager(queries, db, leaf_size, queriesMeta);
     }
 
     delete db;
