@@ -9,8 +9,10 @@
 
 using namespace std;
 
-typedef long T;
+typedef long long int T;
+typedef unsigned long long int TT;
 typedef Interval<T> Tinterval;
+
 
 T * getQueriesMeta(vector<Tinterval> & queries) {
     T max = queries[0].length();

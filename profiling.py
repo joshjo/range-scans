@@ -15,7 +15,7 @@ def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, i
             for leaf_size in leaf_sizes:
                 for range_size in range_sizes:
                     for i in range(iters):
-                        command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
+                        command = f"./runner.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
                         os.system(command)
 
 
