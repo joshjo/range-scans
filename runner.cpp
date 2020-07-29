@@ -124,7 +124,7 @@ void QAT(vector <Tinterval> & queries, T * queriesMeta) {
     delete db;
 
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    cout << FLAGS_iter << "," << FLAGS_distribution << "," << FLAGS_range_size << "," << FLAGS_queries;
+    cout << FLAGS_iter << "," << FLAGS_distribution << "," << queriesMeta[1] << "," << FLAGS_queries;
     cout << "," << elapsed_seconds.count() << endl;
 }
 
