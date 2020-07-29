@@ -23,27 +23,58 @@ DEFINE_bool(write_disk, false, "Write output to disk");
 
 
 
+// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+//     double tbt, mt, t2t, ttt;
+//     tbt = total_time - tree->qMap->elapsedTime();
+//     T * leafsData = tree->getLeafsData();
+
+//     cout << FLAGS_iter << ",";
+//     cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+//     cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+//     cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+//     cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+//     cout << tree->qMap->csv() << ",";
+//     if (mapping_time > 0) {
+//         t2t = mapping_time;
+//         mt = 0;
+//         ttt = tbt + mapping_time;
+//     } else {
+//         t2t = 0;
+//         mt = tree->qMap->elapsedTime();
+//         ttt = total_time;
+//     }
+//     cout << tbt << "," << mt << "," << t2t << "," << ttt;
+// }
+
 void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
     double tbt, mt, t2t, ttt;
     tbt = total_time - tree->qMap->elapsedTime();
     T * leafsData = tree->getLeafsData();
+    vector<Node<T> *> leafs;
+    tree->root->getLeafs(leafs);
 
-    cout << FLAGS_iter << ",";
-    cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-    cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-    cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-    cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-    cout << tree->qMap->csv() << ",";
-    if (mapping_time > 0) {
-        t2t = mapping_time;
-        mt = 0;
-        ttt = tbt + mapping_time;
-    } else {
-        t2t = 0;
-        mt = tree->qMap->elapsedTime();
-        ttt = total_time;
-    }
-    cout << tbt << "," << mt << "," << t2t << "," << ttt;
+
+    cout << "queries        : " << FLAGS_queries << endl;
+    cout << "avg rangesize  : " << queriesMeta[1] << endl;
+    cout << "avg node length: " << leafsData[0] << endl;
+    cout << "leaf nodes     : " << leafsData[3] << endl;
+    cout << "leaf size      : " << FLAGS_leaf_size << endl;
+    // cout << FLAGS_iter << ",";
+    // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+    // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+    // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+    // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+    // cout << tree->qMap->csv() << ",";
+    // if (mapping_time > 0) {
+    //     t2t = mapping_time;
+    //     mt = 0;
+    //     ttt = tbt + mapping_time;
+    // } else {
+    //     t2t = 0;
+    //     mt = tree->qMap->elapsedTime();
+    //     ttt = total_time;
+    // }
+    // cout << tbt << "," << mt << "," << t2t << "," << ttt;
 }
 
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
@@ -51,7 +82,7 @@ bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
     return (i1->interval.min < i2->interval.min);
 }
 
-void QAT(vector <Tinterval> & queries) {
+void QAT(vector <Tinterval> & queries, T * queriesMeta) {
     rocksdb::DB* db;
     rocksdb::Options options;
     options.create_if_missing = true;
@@ -93,8 +124,8 @@ void QAT(vector <Tinterval> & queries) {
     delete db;
 
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    cout << FLAGS_iter << "," << FLAGS_distribution << "," << FLAGS_queries;
-    cout << "," << elapsed_seconds.count() << "," << checksum << endl;
+    cout << FLAGS_iter << "," << FLAGS_distribution << "," << FLAGS_range_size << "," << FLAGS_queries;
+    cout << "," << elapsed_seconds.count() << endl;
 }
 
 
@@ -437,7 +468,7 @@ int main(int argc, char** argv) {
     } else if (FLAGS_strategy == "additional") {
         additional(queries, leaf_size, queriesMeta);
     } else {
-        QAT(queries);
+        QAT(queries, queriesMeta);
     }
 
     gflags::ShutDownCommandLineFlags();

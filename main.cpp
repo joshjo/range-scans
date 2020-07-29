@@ -69,8 +69,8 @@ void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time,
 
 
     cout << "queries        : " << FLAGS_queries << endl;
-    cout << "rangesize      : " << queriesMeta[1] << endl;
-    cout << "avg node length: " << queriesMeta[0] << endl;
+    cout << "avg rangesize  : " << queriesMeta[1] << endl;
+    cout << "avg node length: " << leafsData[0] << endl;
     cout << "leaf nodes     : " << leafsData[3] << endl;
     cout << "leaf size      : " << FLAGS_leaf_size << endl;
     // cout << FLAGS_iter << ",";
