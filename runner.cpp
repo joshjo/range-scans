@@ -23,59 +23,61 @@ DEFINE_bool(write_disk, false, "Write output to disk");
 
 
 
+double printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+    double tbt, mt, t2t, ttt;
+    tbt = total_time - tree->qMap->elapsedTime();
+    T * leafsData = tree->getLeafsData();
+
+    cout << FLAGS_iter << ",";
+    cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+    cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+    cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+    cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+    cout << tree->qMap->csv() << ",";
+    if (mapping_time > 0) {
+        t2t = mapping_time;
+        mt = 0;
+        ttt = tbt + mapping_time;
+    } else {
+        t2t = 0;
+        mt = tree->qMap->elapsedTime();
+        ttt = total_time;
+    }
+    cout << tbt << "," << mt << "," << t2t << "," << ttt;
+
+    return ttt;
+}
+
 // void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
 //     double tbt, mt, t2t, ttt;
 //     tbt = total_time - tree->qMap->elapsedTime();
 //     T * leafsData = tree->getLeafsData();
+//     vector<Node<T> *> leafs;
+//     tree->root->getLeafs(leafs);
 
-//     cout << FLAGS_iter << ",";
-//     cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-//     cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-//     cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-//     cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-//     cout << tree->qMap->csv() << ",";
-//     if (mapping_time > 0) {
-//         t2t = mapping_time;
-//         mt = 0;
-//         ttt = tbt + mapping_time;
-//     } else {
-//         t2t = 0;
-//         mt = tree->qMap->elapsedTime();
-//         ttt = total_time;
-//     }
-//     cout << tbt << "," << mt << "," << t2t << "," << ttt;
+
+//     cout << "queries        : " << FLAGS_queries << endl;
+//     cout << "avg rangesize  : " << queriesMeta[1] << endl;
+//     cout << "avg node length: " << leafsData[0] << endl;
+//     cout << "leaf nodes     : " << leafsData[3] << endl;
+//     cout << "leaf size      : " << FLAGS_leaf_size << endl;
+//     // cout << FLAGS_iter << ",";
+//     // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+//     // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+//     // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+//     // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+//     // cout << tree->qMap->csv() << ",";
+//     // if (mapping_time > 0) {
+//     //     t2t = mapping_time;
+//     //     mt = 0;
+//     //     ttt = tbt + mapping_time;
+//     // } else {
+//     //     t2t = 0;
+//     //     mt = tree->qMap->elapsedTime();
+//     //     ttt = total_time;
+//     // }
+//     // cout << tbt << "," << mt << "," << t2t << "," << ttt;
 // }
-
-void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
-    double tbt, mt, t2t, ttt;
-    tbt = total_time - tree->qMap->elapsedTime();
-    T * leafsData = tree->getLeafsData();
-    vector<Node<T> *> leafs;
-    tree->root->getLeafs(leafs);
-
-
-    cout << "queries        : " << FLAGS_queries << endl;
-    cout << "avg rangesize  : " << queriesMeta[1] << endl;
-    cout << "avg node length: " << leafsData[0] << endl;
-    cout << "leaf nodes     : " << leafsData[3] << endl;
-    cout << "leaf size      : " << FLAGS_leaf_size << endl;
-    // cout << FLAGS_iter << ",";
-    // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-    // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-    // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-    // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-    // cout << tree->qMap->csv() << ",";
-    // if (mapping_time > 0) {
-    //     t2t = mapping_time;
-    //     mt = 0;
-    //     ttt = tbt + mapping_time;
-    // } else {
-    //     t2t = 0;
-    //     mt = tree->qMap->elapsedTime();
-    //     ttt = total_time;
-    // }
-    // cout << tbt << "," << mt << "," << t2t << "," << ttt;
-}
 
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
@@ -132,7 +134,8 @@ void QAT(vector <Tinterval> & queries, T * queriesMeta) {
 void additionalPostProcessing(
         vector <Tinterval> & queries,
         Tree <Traits <T> > * tree,
-        LeafTree<Traits <T>> & leaftree) {
+        LeafTree<Traits <T>> & leaftree,
+        double ttt) {
 
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -198,7 +201,7 @@ void additionalPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
 
     delete it;
     delete db;
@@ -208,7 +211,8 @@ void additionalPostProcessing(
 void eagerPostProcessing(
         vector <Tinterval> & queries,
         Tree <Traits <T> > * tree,
-        QMapEager <Traits <T>> * qMap
+        QMapEager <Traits <T>> * qMap,
+        double ttt
     ){
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -271,7 +275,7 @@ void eagerPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
     delete it;
     delete db;
 }
@@ -279,7 +283,8 @@ void eagerPostProcessing(
 void lazyPostProcessing(
     vector <Tinterval> & queries,
     Tree <Traits <T> > * tree,
-    QMapLazy <Traits <T>> * qMap
+    QMapLazy <Traits <T>> * qMap,
+        double ttt
 ){
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -346,7 +351,7 @@ void lazyPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
 
     delete it;
     delete db;
@@ -384,8 +389,8 @@ void additional(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     elapsed_seconds = end_time - start_time;
     double mapping_time = elapsed_seconds.count();
 
-    printTimes(queriesMeta, tree, total_time, mapping_time);
-    additionalPostProcessing(queries, tree, leaftree);
+    double ttt = printTimes(queriesMeta, tree, total_time, mapping_time);
+    additionalPostProcessing(queries, tree, leaftree, ttt);
 
     cout << endl;
 }
@@ -407,8 +412,8 @@ void eager(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     tree->root->getLeafs(leafs);
     tree->root->recursiveValidate();
 
-    printTimes(queriesMeta, tree, total_time);
-    eagerPostProcessing(queries, tree, qMap);
+    double ttt = printTimes(queriesMeta, tree, total_time);
+    eagerPostProcessing(queries, tree, qMap, ttt);
     cout << endl;
 }
 
@@ -426,8 +431,8 @@ void lazy(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     chrono::duration<double> elapsed_seconds = end_time - start_time;
     double total_time = elapsed_seconds.count();
 
-    printTimes(queriesMeta, tree, total_time);
-    lazyPostProcessing(queries, tree, qMap);
+    double ttt = printTimes(queriesMeta, tree, total_time);
+    lazyPostProcessing(queries, tree, qMap, ttt);
     cout << endl;
 }
 

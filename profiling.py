@@ -6,11 +6,11 @@ from datetime import datetime
 
 universal_domain = 1000000000
 # universal_domain = 1000000
-universal_iters = 2
+universal_iters = 5
 
 
 def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
-    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time')
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,post filtering,db exec time,total time')
 
     for strategy in strategies:
         for query_size in queries:
@@ -165,6 +165,43 @@ def experiment_3c():
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true', min_range_size=100, max_range_size=1000)
 
 
+def experiment_6():
+    point_queries = [
+        50,
+        80,
+        90,
+        99,
+    ]
+    iters = universal_iters
+
+    strategies = [
+        'additional',
+        # 'lazy',
+        # 'eager',
+        # 'qat',
+    ]
+    queries = [
+        10000,
+    ]
+    leaf_sizes = [
+        "max_range",
+    ]
+    range_sizes = [
+        100,
+        1000,
+        10000,
+        100000,
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    for i in point_queries:
+        print(f"############## 6 {i} #################")
+        runner(
+            distribution, domain, strategies, queries,
+            leaf_sizes, range_sizes, iters,
+            percentage_point_queries=i)
+
 def experiment_61():
     print("############## 6.1 A #################")
     iters = universal_iters
@@ -226,10 +263,10 @@ def experiment_63():
     iters = universal_iters
 
     strategies = [
-        # 'additional',
+        'additional',
         # 'lazy',
         # 'eager',
-        'qat',
+        # 'qat',
     ]
     queries = [
         10000,
@@ -254,10 +291,10 @@ def experiment_64():
     iters = universal_iters
 
     strategies = [
-        # 'additional',
+        'additional',
         # 'lazy',
         # 'eager',
-        'qat',
+        # 'qat',
     ]
     queries = [
         10000,
@@ -283,7 +320,8 @@ if __name__ == '__main__':
     # experiment_3a()
     # experiment_3b()
     # experiment_3c()
-    experiment_61()
-    experiment_62()
-    experiment_63()
-    experiment_64()
+    experiment_6()
+    # experiment_61()
+    # experiment_62()
+    # experiment_63()
+    # experiment_64()
