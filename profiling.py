@@ -176,18 +176,15 @@ def experiment_61():
         'qat',
     ]
     queries = [
-        100000,
+        10000,
     ]
     leaf_sizes = [
         "max_range",
     ]
     range_sizes = [
+        100,
         1000,
         10000,
-        100000,
-        # 100000,
-        # 1000000,
-        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -206,18 +203,15 @@ def experiment_62():
         'qat',
     ]
     queries = [
-        100000,
+        10000,
     ]
     leaf_sizes = [
         "max_range",
     ]
     range_sizes = [
+        100,
         1000,
         10000,
-        100000,
-        # 100000,
-        # 1000000,
-        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -231,22 +225,20 @@ def experiment_63():
 
     strategies = [
         # 'additional',
-        'lazy',
+        # 'lazy',
         # 'eager',
-        # 'qat',
+        'qat',
     ]
     queries = [
-        100000,
+        10000,
     ]
     leaf_sizes = [
         "max_range",
     ]
     range_sizes = [
+        100,
         1000,
         10000,
-        100000,
-        # 1000000,
-        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -265,17 +257,15 @@ def experiment_64():
         'qat',
     ]
     queries = [
-        100000,
+        10000,
     ]
     leaf_sizes = [
         "max_range",
     ]
     range_sizes = [
+        100,
         1000,
         10000,
-        100000,
-        # 1000000,
-        # 10000000,
     ]
     distribution = 'normal'
     domain = universal_domain
