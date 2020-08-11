@@ -117,7 +117,12 @@ void QAT(vector <Tinterval> & queries, T * queriesMeta) {
                 it->Valid() && stoi(it->key().ToString()) < interval.max;
                 it->Next())
             {
-                stoi(it->value().ToString());
+                // it->value();
+                // cout << it->value() << endl;
+                string parts = it->value().ToString();
+                // atoi(parts.c_str());
+                // it->value();
+                stoi(parts);
             }
         }
     }
@@ -160,7 +165,7 @@ void additionalPostProcessing(
         Tinterval leaf = (*itq)->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        string ** temp = new string * [leaf.length()];
+        T ** temp = new T * [leaf.length()];
 
         for (int i = leaf.min; i < leaf.max; i += 1) {
             temp[i - leaf.min] = NULL;
@@ -170,7 +175,8 @@ void additionalPostProcessing(
             it->Next()
         ) {
             int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new string(it->value().ToString());
+            temp[key-leaf.min] = new T(stoll(it->value().ToString()));
+            // temp[key - leaf.min] = new string(it->value().ToString());
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -191,7 +197,8 @@ void additionalPostProcessing(
                 // ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    stoi(*temp[j]);
+                    // *temp[j];
+                    *temp[j];
                 }
             }
 

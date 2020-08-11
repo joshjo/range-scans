@@ -10,14 +10,14 @@ universal_iters = 5
 
 
 def runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
-    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,post filtering,db exec time,total time')
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,total time')
 
     for strategy in strategies:
         for query_size in queries:
             for leaf_size in leaf_sizes:
                 for range_size in range_sizes:
                     for i in range(iters):
-                        command = f"./runner.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
+                        command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
                         os.system(command)
 
 
@@ -31,12 +31,12 @@ def experiment_1a():
         # 'eager',
     ]
     queries = [
-        10,
-        100,
-        1000,
-        10000,
-        100000,
-        # 1000000,
+        # 10,
+        # 100,
+        # 1000,
+        # 10000,
+        # 100000,
+        1000000,
         # 10000000,
     ]
     leaf_sizes = [
@@ -93,14 +93,14 @@ def experiment_3a():
         100000,
     ]
     leaf_sizes = [
-        10000000,
-        1000000,
-        100000,
-        10000,
-        1000,
+        int(universal_domain * (10 ** -4) / 100),
+        int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -1) / 100),
+        int(universal_domain * (10 ** 0) / 100),
+        'max_range',
     ]
     range_sizes = [
-        100000,
+        int(universal_domain * (10 ** -3) / 100),
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -121,14 +121,14 @@ def experiment_3b():
         100000,
     ]
     leaf_sizes = [
-        10000000,
-        1000000,
-        100000,
-        10000,
-        1000,
+        int(universal_domain * (10 ** -4) / 100),
+        int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -1) / 100),
+        int(universal_domain * (10 ** 0) / 100),
+        'max_range',
     ]
     range_sizes = [
-        10000,
+        int(universal_domain * (10 ** -4) / 100),
     ]
     distribution = 'normal'
     domain = universal_domain
@@ -149,12 +149,11 @@ def experiment_3c():
         100000,
     ]
     leaf_sizes = [
-        "max_range",
-        10000000,
-        1000000,
-        100000,
-        10000,
-        1000,
+        int(universal_domain * (10 ** -4) / 100),
+        int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -1) / 100),
+        int(universal_domain * (10 ** 0) / 100),
+        'max_range',
     ]
     range_sizes = [
         0,
@@ -162,7 +161,12 @@ def experiment_3c():
     distribution = 'normal'
     domain = universal_domain
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='true', min_range_size=100, max_range_size=1000)
+    runner(
+        distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters,
+        random_range_size='true',
+        min_range_size=int(universal_domain * (10 ** -5)),
+        max_range_size=int(universal_domain * (10 ** -4)),
+    )
 
 
 def experiment_6():
@@ -201,6 +205,7 @@ def experiment_6():
             distribution, domain, strategies, queries,
             leaf_sizes, range_sizes, iters,
             percentage_point_queries=i)
+
 
 def experiment_61():
     print("############## 6.1 A #################")
@@ -317,10 +322,10 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    # experiment_3a()
-    # experiment_3b()
-    # experiment_3c()
-    experiment_6()
+    experiment_3a()
+    experiment_3b()
+    experiment_3c()
+    # experiment_6()
     # experiment_61()
     # experiment_62()
     # experiment_63()
