@@ -22,12 +22,8 @@ DEFINE_int64(seed, 100, "Random Seed");
 DEFINE_bool(write_disk, false, "Write output to disk");
 
 
-bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
-{
-    return (i1->interval.min < i2->interval.min);
-}
 
-void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+double printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
     double tbt, mt, t2t, ttt;
     tbt = total_time - tree->qMap->elapsedTime();
     T * leafsData = tree->getLeafsData();
@@ -48,9 +44,47 @@ void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time,
         ttt = total_time;
     }
     cout << tbt << "," << mt << "," << t2t << "," << ttt;
+
+    return ttt;
 }
 
-void QAT(vector <Tinterval> & queries) {
+// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+//     double tbt, mt, t2t, ttt;
+//     tbt = total_time - tree->qMap->elapsedTime();
+//     T * leafsData = tree->getLeafsData();
+//     vector<Node<T> *> leafs;
+//     tree->root->getLeafs(leafs);
+
+
+//     cout << "queries        : " << FLAGS_queries << endl;
+//     cout << "avg rangesize  : " << queriesMeta[1] << endl;
+//     cout << "avg node length: " << leafsData[0] << endl;
+//     cout << "leaf nodes     : " << leafsData[3] << endl;
+//     cout << "leaf size      : " << FLAGS_leaf_size << endl;
+//     // cout << FLAGS_iter << ",";
+//     // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+//     // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+//     // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+//     // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+//     // cout << tree->qMap->csv() << ",";
+//     // if (mapping_time > 0) {
+//     //     t2t = mapping_time;
+//     //     mt = 0;
+//     //     ttt = tbt + mapping_time;
+//     // } else {
+//     //     t2t = 0;
+//     //     mt = tree->qMap->elapsedTime();
+//     //     ttt = total_time;
+//     // }
+//     // cout << tbt << "," << mt << "," << t2t << "," << ttt;
+// }
+
+bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
+{
+    return (i1->interval.min < i2->interval.min);
+}
+
+void QAT(vector <Tinterval> & queries, T * queriesMeta) {
     rocksdb::DB* db;
     rocksdb::Options options;
     options.create_if_missing = true;
@@ -83,7 +117,12 @@ void QAT(vector <Tinterval> & queries) {
                 it->Valid() && stoi(it->key().ToString()) < interval.max;
                 it->Next())
             {
-                checksum += stoi(it->value().ToString());
+                // it->value();
+                // cout << it->value() << endl;
+                string parts = it->value().ToString();
+                // atoi(parts.c_str());
+                // it->value();
+                stoi(parts);
             }
         }
     }
@@ -92,15 +131,16 @@ void QAT(vector <Tinterval> & queries) {
     delete db;
 
     chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    cout << FLAGS_iter << "," << FLAGS_distribution << "," << FLAGS_queries;
-    cout << "," << elapsed_seconds.count() << "," << checksum << endl;
+    cout << FLAGS_iter << "," << FLAGS_distribution << "," << queriesMeta[1] << "," << FLAGS_queries;
+    cout << "," << elapsed_seconds.count() << endl;
 }
 
 
 void additionalPostProcessing(
         vector <Tinterval> & queries,
         Tree <Traits <T> > * tree,
-        LeafTree<Traits <T>> & leaftree) {
+        LeafTree<Traits <T>> & leaftree,
+        double ttt) {
 
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -125,7 +165,7 @@ void additionalPostProcessing(
         Tinterval leaf = (*itq)->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        string ** temp = new string * [leaf.length()];
+        T ** temp = new T * [leaf.length()];
 
         for (int i = leaf.min; i < leaf.max; i += 1) {
             temp[i - leaf.min] = NULL;
@@ -135,7 +175,8 @@ void additionalPostProcessing(
             it->Next()
         ) {
             int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new string(it->value().ToString());
+            temp[key-leaf.min] = new T(stoll(it->value().ToString()));
+            // temp[key - leaf.min] = new string(it->value().ToString());
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -156,7 +197,8 @@ void additionalPostProcessing(
                 // ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    // *temp[j];
+                    *temp[j];
                 }
             }
 
@@ -166,55 +208,18 @@ void additionalPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
 
     delete it;
     delete db;
 
 }
 
-void additional(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
-    auto start_time = std::chrono::system_clock::now();
-    QMapExtra <Traits <T>> * qMap = new QMapExtra <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
-
-    for (int i = 0; i < queries.size(); i += 1) {
-        tree->insert(queries[i]);
-    }
-
-    auto end_time = std::chrono::system_clock::now();
-    chrono::duration<double> elapsed_seconds = end_time - start_time;
-    double total_time = elapsed_seconds.count();
-
-    start_time = std::chrono::system_clock::now();
-    LeafTree<Traits <T>> leaftree;
-    vector<Node<T> *> leafs;
-    tree->root->getLeafs(leafs);
-    random_shuffle(leafs.begin(), leafs.end());
-
-    for (int i = 0; i < leafs.size(); i++) {
-        leaftree.insert(leafs[i]->interval);
-    }
-
-    for (int i = 0; i < queries.size(); i += 1) {
-        leaftree.assign(&queries[i]);
-    }
-    tree->qMap->indexed = leaftree.numIndexedQueries();
-
-    end_time = std::chrono::system_clock::now();
-    elapsed_seconds = end_time - start_time;
-    double mapping_time = elapsed_seconds.count();
-
-    printTimes(queriesMeta, tree, total_time, mapping_time);
-    additionalPostProcessing(queries, tree, leaftree);
-
-    cout << endl;
-}
-
 void eagerPostProcessing(
         vector <Tinterval> & queries,
         Tree <Traits <T> > * tree,
-        QMapEager <Traits <T>> * qMap
+        QMapEager <Traits <T>> * qMap,
+        double ttt
     ){
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -267,7 +272,7 @@ void eagerPostProcessing(
                 // ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    stoi(*temp[j]);
                 }
             }
 
@@ -277,37 +282,16 @@ void eagerPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
     delete it;
     delete db;
-}
-
-void eager(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
-    auto start_time = std::chrono::system_clock::now();
-    QMapEager <Traits <T>> * qMap = new QMapEager <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
-
-    for (int i = 0; i < queries.size(); i += 1) {
-        tree->insert(queries[i]);
-    }
-
-    auto end_time = std::chrono::system_clock::now();
-    chrono::duration<double> elapsed_seconds = end_time - start_time;
-    double total_time = elapsed_seconds.count();
-
-    vector<Node<T> *> leafs;
-    tree->root->getLeafs(leafs);
-    tree->root->recursiveValidate();
-
-    printTimes(queriesMeta, tree, total_time);
-    eagerPostProcessing(queries, tree, qMap);
-    cout << endl;
 }
 
 void lazyPostProcessing(
     vector <Tinterval> & queries,
     Tree <Traits <T> > * tree,
-    QMapLazy <Traits <T>> * qMap
+    QMapLazy <Traits <T>> * qMap,
+        double ttt
 ){
     rocksdb::DB* db;
     rocksdb::Options options;
@@ -364,7 +348,7 @@ void lazyPostProcessing(
                 // ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    stoi(*temp[j]);
                 }
             }
 
@@ -374,11 +358,72 @@ void lazyPostProcessing(
         post_filtering_time += elapsed_timer.count();
     }
 
-    cout << "," << post_filtering_time << "," << db_exec_time;
+    cout << "," << post_filtering_time << "," << db_exec_time << "," << post_filtering_time + db_exec_time + ttt;
 
     delete it;
     delete db;
 }
+
+void additional(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
+    auto start_time = std::chrono::system_clock::now();
+    QMapExtra <Traits <T>> * qMap = new QMapExtra <Traits <T>>();
+    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
+
+    for (int i = 0; i < queries.size(); i += 1) {
+        tree->insert(queries[i]);
+    }
+
+    auto end_time = std::chrono::system_clock::now();
+    chrono::duration<double> elapsed_seconds = end_time - start_time;
+    double total_time = elapsed_seconds.count();
+
+    start_time = std::chrono::system_clock::now();
+    LeafTree<Traits <T>> leaftree;
+    vector<Node<T> *> leafs;
+    tree->root->getLeafs(leafs);
+    random_shuffle(leafs.begin(), leafs.end());
+
+    for (int i = 0; i < leafs.size(); i++) {
+        leaftree.insert(leafs[i]->interval);
+    }
+
+    for (int i = 0; i < queries.size(); i += 1) {
+        leaftree.assign(&queries[i]);
+    }
+    tree->qMap->indexed = leaftree.numIndexedQueries();
+
+    end_time = std::chrono::system_clock::now();
+    elapsed_seconds = end_time - start_time;
+    double mapping_time = elapsed_seconds.count();
+
+    double ttt = printTimes(queriesMeta, tree, total_time, mapping_time);
+    additionalPostProcessing(queries, tree, leaftree, ttt);
+
+    cout << endl;
+}
+
+void eager(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
+    auto start_time = std::chrono::system_clock::now();
+    QMapEager <Traits <T>> * qMap = new QMapEager <Traits <T>>();
+    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
+
+    for (int i = 0; i < queries.size(); i += 1) {
+        tree->insert(queries[i]);
+    }
+
+    auto end_time = std::chrono::system_clock::now();
+    chrono::duration<double> elapsed_seconds = end_time - start_time;
+    double total_time = elapsed_seconds.count();
+
+    vector<Node<T> *> leafs;
+    tree->root->getLeafs(leafs);
+    tree->root->recursiveValidate();
+
+    double ttt = printTimes(queriesMeta, tree, total_time);
+    eagerPostProcessing(queries, tree, qMap, ttt);
+    cout << endl;
+}
+
 
 void lazy(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     auto start_time = std::chrono::system_clock::now();
@@ -393,8 +438,8 @@ void lazy(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     chrono::duration<double> elapsed_seconds = end_time - start_time;
     double total_time = elapsed_seconds.count();
 
-    printTimes(queriesMeta, tree, total_time);
-    lazyPostProcessing(queries, tree, qMap);
+    double ttt = printTimes(queriesMeta, tree, total_time);
+    lazyPostProcessing(queries, tree, qMap, ttt);
     cout << endl;
 }
 
@@ -435,7 +480,7 @@ int main(int argc, char** argv) {
     } else if (FLAGS_strategy == "additional") {
         additional(queries, leaf_size, queriesMeta);
     } else {
-        QAT(queries);
+        QAT(queries, queriesMeta);
     }
 
     gflags::ShutDownCommandLineFlags();
