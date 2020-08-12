@@ -164,8 +164,8 @@ def experiment_3c():
     runner(
         distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters,
         random_range_size='true',
-        min_range_size=int(universal_domain * (10 ** -5)),
-        max_range_size=int(universal_domain * (10 ** -4)),
+        min_range_size=int(universal_domain * (10 ** -4) / 100),
+        max_range_size=int(universal_domain * (10 ** -3) / 100),
     )
 
 
@@ -322,8 +322,8 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    experiment_3a()
-    experiment_3b()
+    # experiment_3a()
+    # experiment_3b()
     experiment_3c()
     # experiment_6()
     # experiment_61()
