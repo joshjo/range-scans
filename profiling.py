@@ -80,6 +80,60 @@ def experiment_1b():
     runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
+def experiment_2a():
+    print("############## 2 A #################")
+    iters = universal_iters
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        int(10 ** 5),
+    ]
+    leaf_sizes = [
+        int(universal_domain * 1 / 100),
+    ]
+    range_sizes = [
+        int(universal_domain * 0.001 / 100),
+        int(universal_domain * 0.01 / 100),
+        int(universal_domain * 0.1 / 100),
+        int(universal_domain * 1 / 100),
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+
+
+def experiment_2b():
+    print("############## 2 B #################")
+    iters = universal_iters
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        int(10 ** 6),
+    ]
+    leaf_sizes = [
+        int(universal_domain * 1 / 100),
+    ]
+    range_sizes = [
+        int(universal_domain * 0.001 / 100),
+        int(universal_domain * 0.01 / 100),
+        int(universal_domain * 0.1 / 100),
+        int(universal_domain * 1 / 100),
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+
+
 def experiment_3a():
     print("############## 3 A #################")
     iters = universal_iters
@@ -322,9 +376,11 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
+    experiment_2a()
+    experiment_2b()
     # experiment_3a()
     # experiment_3b()
-    experiment_3c()
+    # experiment_3c()
     # experiment_6()
     # experiment_61()
     # experiment_62()
