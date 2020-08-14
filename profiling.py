@@ -152,7 +152,6 @@ def experiment_3a():
         int(universal_domain * (10 ** -2) / 100),
         int(universal_domain * (10 ** -1) / 100),
         int(universal_domain * (10 ** 0) / 100),
-        'max_range',
     ]
     range_sizes = [
         int(universal_domain * (10 ** -3) / 100),
@@ -181,7 +180,6 @@ def experiment_3b():
         int(universal_domain * (10 ** -2) / 100),
         int(universal_domain * (10 ** -1) / 100),
         int(universal_domain * (10 ** 0) / 100),
-        'max_range',
     ]
     range_sizes = [
         int(universal_domain * (10 ** -4) / 100),
