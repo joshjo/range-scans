@@ -19,7 +19,7 @@ public:
     static_assert(!std::numeric_limits<RealType>::is_integer, "");
 
     zipf_distribution(const IntType n=std::numeric_limits<IntType>::max(),
-                      const RealType q=1.0)
+                      const RealType q=0.7)
         : n(n)
         , q(q)
         , H_x1(H(1.5) - 1.0)

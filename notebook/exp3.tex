@@ -1,0 +1,48 @@
+% This file was created by tikzplotlib v0.9.3.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+\definecolor{color1}{rgb}{1,0.498039215686275,0.0549019607843137}
+\definecolor{color2}{rgb}{0.172549019607843,0.627450980392157,0.172549019607843}
+
+\begin{axis}[
+legend cell align={left},
+legend style={fill opacity=0.8, draw opacity=1, text opacity=1, draw=white!80!black},
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xlabel={leaf size},
+xmin=-0.5, xmax=3.5,
+xtick style={color=black},
+xtick={0,1,2,3},
+xticklabel style = {rotate=90.0},
+xticklabels={1000,10000,1000000,10000000},
+y grid style={white!69.0196078431373!black},
+ylabel={time(s)},
+ymin=0, ymax=1.549324,
+ytick style={color=black}
+]
+\draw[draw=none,fill=color0] (axis cs:-0.25,0) rectangle (axis cs:-0.0833333333333333,1.47554666666667);
+\addlegendimage{ybar,ybar legend,draw=none,fill=color0};
+\addlegendentry{additional}
+
+\draw[draw=none,fill=color0] (axis cs:0.75,0) rectangle (axis cs:0.916666666666667,0.137728333333333);
+\draw[draw=none,fill=color0] (axis cs:1.75,0) rectangle (axis cs:1.91666666666667,0.0779914);
+\draw[draw=none,fill=color0] (axis cs:2.75,0) rectangle (axis cs:2.91666666666667,0.0767463);
+\draw[draw=none,fill=color1] (axis cs:-0.0833333333333333,0) rectangle (axis cs:0.0833333333333333,1.35180333333333);
+\addlegendimage{ybar,ybar legend,draw=none,fill=color1};
+\addlegendentry{eager}
+
+\draw[draw=none,fill=color1] (axis cs:0.916666666666667,0) rectangle (axis cs:1.08333333333333,0.156926666666667);
+\draw[draw=none,fill=color1] (axis cs:1.91666666666667,0) rectangle (axis cs:2.08333333333333,0.127680333333333);
+\draw[draw=none,fill=color1] (axis cs:2.91666666666667,0) rectangle (axis cs:3.08333333333333,0.118807666666667);
+\draw[draw=none,fill=color2] (axis cs:0.0833333333333333,0) rectangle (axis cs:0.25,1.32878);
+\addlegendimage{ybar,ybar legend,draw=none,fill=color2};
+\addlegendentry{lazy}
+
+\draw[draw=none,fill=color2] (axis cs:1.08333333333333,0) rectangle (axis cs:1.25,0.124259);
+\draw[draw=none,fill=color2] (axis cs:2.08333333333333,0) rectangle (axis cs:2.25,0.108257666666667);
+\draw[draw=none,fill=color2] (axis cs:3.08333333333333,0) rectangle (axis cs:3.25,0.109734);
+\end{axis}
+
+\end{tikzpicture}

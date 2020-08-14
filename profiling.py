@@ -149,6 +149,7 @@ def experiment_3a():
     leaf_sizes = [
         int(universal_domain * (10 ** -4) / 100),
         int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -2) / 100),
         int(universal_domain * (10 ** -1) / 100),
         int(universal_domain * (10 ** 0) / 100),
         'max_range',
@@ -177,6 +178,7 @@ def experiment_3b():
     leaf_sizes = [
         int(universal_domain * (10 ** -4) / 100),
         int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -2) / 100),
         int(universal_domain * (10 ** -1) / 100),
         int(universal_domain * (10 ** 0) / 100),
         'max_range',
@@ -376,10 +378,10 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    experiment_2a()
-    experiment_2b()
-    # experiment_3a()
-    # experiment_3b()
+    # experiment_2a()
+    # experiment_2b()
+    experiment_3a()
+    experiment_3b()
     # experiment_3c()
     # experiment_6()
     # experiment_61()

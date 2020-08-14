@@ -63,15 +63,43 @@ vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, boo
 }
 
 vector<Tinterval> create_queries_zipf(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int min_range_size=0, int max_range_size=0, int percentage_point_queries=0) {
-    vector<Tinterval> result;
     T max_random = domain_size - range_size;
+    srand(SEED);
     std::mt19937 gen(SEED);
-    zipf_distribution<> zipf(max_random);
+    vector<Tinterval> result;
+    zipf_distribution<T> zipf(max_random);
 
     for (int i = 0; i < num_queries; i += 1) {
-        T rnd = zipf(gen);
+        T rs = range_size;
+
+        if ((rand() % 100) < percentage_point_queries) {
+            rs = 1;
+        } else if (random_range_sizes) {
+            rs = min_range_size + rand() % (max_range_size - min_range_size);
+        }
+        T max_random = domain_size - rs;
+        T rnd = zipf(gen) % max_random;
         result.push_back(Tinterval(rnd, rnd + range_size));
     }
+    return result;
+}
+
+T * get_histogram(T domain_size, vector<Tinterval> & queries) {
+    T * result = new T[domain_size];
+
+    for (size_t i = 0; i < domain_size; i++) {
+        result[i] = 0;
+    }
+
+    for (size_t i = 0; i < queries.size(); i++) {
+        result[queries[i].min] += 1;
+        result[queries[i].max] += 1;
+
+        for (size_t j = queries[i].min; j < queries[i].max; j++) {
+            result[j] += 1;
+        }
+    }
+
     return result;
 }
 

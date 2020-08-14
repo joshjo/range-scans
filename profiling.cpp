@@ -135,6 +135,12 @@ int main(int argc, char** argv) {
         queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
+    // T * hist = get_histogram(FLAGS_key_domain_size, queries);
+
+    // cout << "col,rep" << endl;
+    // for (size_t i = 0; i < FLAGS_key_domain_size; i++) {
+    //     cout << i << "," << hist[i] << endl;
+    // }
     T * queriesMeta = getQueriesMeta(queries);
 
     if (is_number(FLAGS_leaf_size)) {
