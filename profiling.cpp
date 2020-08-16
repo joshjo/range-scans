@@ -152,10 +152,15 @@ int main(int argc, char** argv) {
     }
 
     if (FLAGS_pre_partitioning) {
-        T pre_queries = FLAGS_key_domain_size / leaf_size;
-        for (int i = 0; i < pre_queries; i++) {
+        T pre_queries_size = FLAGS_key_domain_size / leaf_size;
+        vector<Tinterval> pre_queries;
+        for (int i = 0; i < pre_queries_size; i++) {
             Tinterval pre(i * leaf_size, (i + 1) * leaf_size);
-            queries.insert(queries.begin(), pre);
+            pre_queries.push_back(pre);
+        }
+        random_shuffle(pre_queries.begin(), pre_queries.end());
+        for (int i = 0; i < pre_queries.size(); i++){
+            queries.insert(queries.begin(), queries[i]);
         }
     }
 
