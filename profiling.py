@@ -18,7 +18,7 @@ def runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, 
                 for leaf_size in leaf_sizes:
                     for range_size in range_sizes:
                         for i in range(iters):
-                            command = f"./profiling.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
+                            command = f"./profiling.out --pre_partitioning --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
                             os.system(command)
 
 
@@ -102,10 +102,10 @@ def experiment_2a():
         int(universal_domain * 0.1 / 100),
         int(universal_domain * 1 / 100),
     ]
-    distribution = 'normal'
+    distributions = ['normal']
     domain = universal_domain
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+    runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_2b():
@@ -129,10 +129,10 @@ def experiment_2b():
         int(universal_domain * 0.1 / 100),
         int(universal_domain * 1 / 100),
     ]
-    distribution = 'normal'
+    distributions = ['normal']
     domain = universal_domain
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+    runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_3a():
@@ -403,12 +403,12 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    # experiment_2a()
+    experiment_2a()
     # experiment_2b()
     # experiment_3a()
     # experiment_3b()
     # experiment_3c()
-    experiment_4()
+    # experiment_4()
     # experiment_6()
     # experiment_61()
     # experiment_62()

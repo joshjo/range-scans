@@ -17,6 +17,7 @@ DEFINE_string(strategy, "raw", "Strategy");
 DEFINE_string(distribution, "normal", "Random Distribution");
 DEFINE_int64(iter, 0, "Define the iteration number");
 DEFINE_int64(seed, 100, "Random Seed");
+DEFINE_bool(pre_partitioning, false, "Create the pre partitioning based on the range query size");
 
 
 void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
@@ -135,18 +136,27 @@ int main(int argc, char** argv) {
         queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
+    T * queriesMeta = getQueriesMeta(queries);
+
     // T * hist = get_histogram(FLAGS_key_domain_size, queries);
 
     // cout << "col,rep" << endl;
     // for (size_t i = 0; i < FLAGS_key_domain_size; i++) {
     //     cout << i << "," << hist[i] << endl;
     // }
-    T * queriesMeta = getQueriesMeta(queries);
 
     if (is_number(FLAGS_leaf_size)) {
         leaf_size = atol(FLAGS_leaf_size.c_str());
     } else if (FLAGS_leaf_size == "max_range") {
         leaf_size = queriesMeta[2];
+    }
+
+    if (FLAGS_pre_partitioning) {
+        T pre_queries = FLAGS_key_domain_size / leaf_size;
+        for (int i = 0; i < pre_queries; i++) {
+            Tinterval pre(i * leaf_size, (i + 1) * leaf_size);
+            queries.insert(queries.begin(), pre);
+        }
     }
 
     if (FLAGS_strategy == "lazy") {
