@@ -160,7 +160,7 @@ int main(int argc, char** argv) {
         }
         random_shuffle(pre_queries.begin(), pre_queries.end());
         for (int i = 0; i < pre_queries.size(); i++){
-            queries.insert(queries.begin(), queries[i]);
+            queries.insert(queries.begin(), pre_queries[i]);
         }
     }
 
