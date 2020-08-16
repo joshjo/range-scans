@@ -1,5 +1,4 @@
-############## 2 A #################
-iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,total time
+iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time
 0,additional,normal,100000,1000000000,10000000,10000,10000,10000,10000,18671,35222,32,103011,0,0,0,0,0,0,0,0,0.0391066,0,0.0346737,0.0737803
 1,additional,normal,100000,1000000000,10000000,10000,10000,10000,10000,18671,35222,32,103011,0,0,0,0,0,0,0,0,0.0422914,0,0.0350907,0.0773821
 2,additional,normal,100000,1000000000,10000000,10000,10000,10000,10000,18671,35222,32,103011,0,0,0,0,0,0,0,0,0.0416697,0,0.0345517,0.0762213
