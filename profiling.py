@@ -4,7 +4,8 @@ import sys
 from datetime import datetime
 
 
-universal_domain = 1000000000
+# universal_domain = 1000000000
+universal_domain = 10**9
 # universal_domain = 1000000
 universal_iters = 5
 
@@ -185,10 +186,10 @@ def experiment_3b():
     range_sizes = [
         int(universal_domain * (10 ** -4) / 100),
     ]
-    distribution = 'normal'
+    distributions = ['normal']
     domain = universal_domain
 
-    runner(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+    runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_3c():
@@ -213,15 +214,43 @@ def experiment_3c():
     range_sizes = [
         0,
     ]
-    distribution = 'normal'
+    distributions = ['normal']
     domain = universal_domain
 
     runner(
-        distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters,
+        distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters,
         random_range_size='true',
-        min_range_size=int(universal_domain * (10 ** -4) / 100),
-        max_range_size=int(universal_domain * (10 ** -3) / 100),
+        # min_range_size=int(universal_domain * (10 ** -4) / 100),
+        # max_range_size=int(universal_domain * (10 ** -3) / 100),
     )
+
+
+def experiment_3d():
+    print("############## 3 D #################")
+    iters = universal_iters
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        100000,
+    ]
+    leaf_sizes = [
+        10**3,
+        10**4,
+        10**5,
+        10**6,
+        10**7,
+    ]
+    range_sizes = [
+        10**5,
+    ]
+    distributions = ['normal']
+    domain = universal_domain
+
+    runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_4():
@@ -403,11 +432,12 @@ def experiment_64():
 if __name__ == '__main__':
     # experiment_1a()
     # experiment_1b()
-    experiment_2a()
+    # experiment_2a()
     # experiment_2b()
     # experiment_3a()
     # experiment_3b()
     # experiment_3c()
+    experiment_3d()
     # experiment_4()
     # experiment_6()
     # experiment_61()
