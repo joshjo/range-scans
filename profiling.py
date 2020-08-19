@@ -235,7 +235,7 @@ def experiment_3d():
         'eager',
     ]
     queries = [
-        10000,
+        100000,
     ]
     leaf_sizes = [
         10**3,
