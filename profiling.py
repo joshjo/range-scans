@@ -235,7 +235,7 @@ def experiment_3d():
         'eager',
     ]
     queries = [
-        100000,
+        10000,
     ]
     leaf_sizes = [
         10**3,
@@ -247,7 +247,7 @@ def experiment_3d():
         10**9,
     ]
     range_sizes = [
-        10**5,
+        10**4,
     ]
     distributions = ['normal']
     domain = universal_domain
