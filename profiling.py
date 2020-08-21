@@ -161,11 +161,11 @@ def experiment_2c():
         100000,
     ]
     leaf_sizes = [
-        int(universal_domain * (10 ** -6) / 100),
         int(universal_domain * (10 ** -5) / 100),
         int(universal_domain * (10 ** -4) / 100),
         int(universal_domain * (10 ** -3) / 100),
         int(universal_domain * (10 ** -2) / 100),
+        int(universal_domain * (10 ** -1) / 100),
     ]
     range_sizes = [
         int(universal_domain * (10 ** -5) / 100),
