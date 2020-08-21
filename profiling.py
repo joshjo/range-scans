@@ -174,10 +174,10 @@ def experiment_2c():
         int(universal_domain * (10 ** -2) / 100),
         int(universal_domain * (10 ** -1) / 100),
     ]
-    distribution = 'normal'
+    distributions = ['normal']
     domain = universal_domain
 
-    runner_grouped(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+    runner_grouped(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_3a():
