@@ -23,6 +23,18 @@ def runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, 
                             os.system(command)
 
 
+def runner_grouped(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,total time')
+
+    for distribution in distributions:
+        for strategy in strategies:
+            for query_size in queries:
+                for (leaf_size, range_size) in zip(leaf_sizes, range_sizes):
+                    for i in range(iters):
+                        command = f"./profiling.out --pre_partitioning --distribution={distribution} --iter={i} --strategy={strategy} --queries={query_size} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size} --random_range_size={random_range_size} --min_range_size={min_range_size} --max_range_size={max_range_size} --percentage_point_queries={percentage_point_queries}"
+                        os.system(command)
+
+
 def experiment_1a():
     print("############## 1 A #################")
     iters = universal_iters
@@ -134,6 +146,38 @@ def experiment_2b():
     domain = universal_domain
 
     runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters)
+
+
+def experiment_2c():
+    print("############## 2 C #################")
+    iters = universal_iters
+
+    strategies = [
+        'additional',
+        'lazy',
+        'eager',
+    ]
+    queries = [
+        100000,
+    ]
+    leaf_sizes = [
+        int(universal_domain * (10 ** -4) / 100),
+        int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -2) / 100),
+        int(universal_domain * (10 ** -1) / 100),
+        int(universal_domain * (10 ** 0) / 100),
+    ]
+    range_sizes = [
+        int(universal_domain * (10 ** -5) / 100),
+        int(universal_domain * (10 ** -4) / 100),
+        int(universal_domain * (10 ** -3) / 100),
+        int(universal_domain * (10 ** -2) / 100),
+        int(universal_domain * (10 ** -1) / 100),
+    ]
+    distribution = 'normal'
+    domain = universal_domain
+
+    runner_grouped(distribution, domain, strategies, queries, leaf_sizes, range_sizes, iters)
 
 
 def experiment_3a():
@@ -436,10 +480,11 @@ if __name__ == '__main__':
     # experiment_1b()
     # experiment_2a()
     # experiment_2b()
+    experiment_2c()
     # experiment_3a()
     # experiment_3b()
     # experiment_3c()
-    experiment_3d()
+    # experiment_3d()
     # experiment_4()
     # experiment_6()
     # experiment_61()
