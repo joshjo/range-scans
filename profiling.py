@@ -7,7 +7,8 @@ from datetime import datetime
 # universal_domain = 1000000000
 universal_domain = 10**9
 # universal_domain = 1000000
-universal_iters = 5
+# universal_iters = 5
+universal_iters = 1
 
 
 def runner(distributions, domain, strategies, queries, leaf_sizes, range_sizes, iters, random_range_size='false', min_range_size=0, max_range_size=0, percentage_point_queries=0):
@@ -47,10 +48,10 @@ def experiment_1a():
     queries = [
         # 10,
         # 100,
-        # 1000,
-        # 10000,
+        1000,
+        10000,
         # 100000,
-        1000000,
+        # 1000000,
         # 10000000,
     ]
     leaf_sizes = [
@@ -154,8 +155,8 @@ def experiment_2c():
 
     strategies = [
         'additional',
-        'lazy',
-        'eager',
+        # 'lazy',
+        # 'eager',
     ]
     queries = [
         100000,
@@ -275,23 +276,23 @@ def experiment_3d():
 
     strategies = [
         'additional',
-        'lazy',
-        'eager',
+        # 'lazy',
+        # 'eager',
     ]
     queries = [
         100000,
     ]
     leaf_sizes = [
         10**3,
-        10**4,
-        10**5,
-        10**6,
-        10**7,
-        10**8,
-        10**9,
+        # 10**4,
+        # 10**5,
+        # 10**6,
+        # 10**7,
+        # 10**8,
+        # 10**9,
     ]
     range_sizes = [
-        10**4,
+        10**5,
     ]
     distributions = ['normal']
     domain = universal_domain
@@ -476,11 +477,11 @@ def experiment_64():
 
 
 if __name__ == '__main__':
-    # experiment_1a()
+    experiment_1a()
     # experiment_1b()
     # experiment_2a()
     # experiment_2b()
-    experiment_2c()
+    # experiment_2c()
     # experiment_3a()
     # experiment_3b()
     # experiment_3c()

@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def experiment1():
-    print('iter,distribution,num queries,strategy,domain,leaf size,range size,avg node range,num leafs,tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops, mapping share ops, mapping merge ops,mapping insert time, mapping transfer time, mapping share time, mapping merge time, mapping total time, additional tree time, tree building time, mapping + tree building time,post filtering time,db execution time,total time')
+    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,exec time,post filtering time,total time')
 
     iters = 5
     strategies = [
@@ -14,11 +14,11 @@ def experiment1():
         'additional',
     ]
     queries = [
-        # 10,
-        # 100,
-        # 1000,
-        # 10000,
-        # 100000,
+        10,
+        100,
+        1000,
+        10000,
+        100000,
         1000000,
     ]
     distribution = 'normal'

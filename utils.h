@@ -92,8 +92,10 @@ T * get_histogram(T domain_size, vector<Tinterval> & queries) {
     }
 
     for (size_t i = 0; i < queries.size(); i++) {
-        result[queries[i].min] += 1;
-        result[queries[i].max] += 1;
+        T min = queries[i].min;
+        T max = queries[i].max;
+        result[min] += 1;
+        result[max] += 1;
 
         for (size_t j = queries[i].min; j < queries[i].max; j++) {
             result[j] += 1;

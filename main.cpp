@@ -37,59 +37,59 @@ string outputfolder = "output/";
 
 using namespace std;
 
-// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
-//     double tbt, mt, t2t, ttt;
-//     tbt = total_time - tree->qMap->elapsedTime();
-//     T * leafsData = tree->getLeafsData();
-
-//     cout << FLAGS_iter << ",";
-//     cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-//     cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-//     cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-//     cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-//     cout << tree->qMap->csv() << ",";
-//     if (mapping_time > 0) {
-//         t2t = mapping_time;
-//         mt = 0;
-//         ttt = tbt + mapping_time;
-//     } else {
-//         t2t = 0;
-//         mt = tree->qMap->elapsedTime();
-//         ttt = total_time;
-//     }
-//     cout << tbt << "," << mt << "," << t2t << "," << ttt;
-// }
-
 void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
     double tbt, mt, t2t, ttt;
     tbt = total_time - tree->qMap->elapsedTime();
     T * leafsData = tree->getLeafsData();
-    vector<Node<T> *> leafs;
-    tree->root->getLeafs(leafs);
 
-
-    cout << "queries        : " << FLAGS_queries << endl;
-    cout << "avg rangesize  : " << queriesMeta[1] << endl;
-    cout << "avg node length: " << leafsData[0] << endl;
-    cout << "leaf nodes     : " << leafsData[3] << endl;
-    cout << "leaf size      : " << FLAGS_leaf_size << endl;
-    // cout << FLAGS_iter << ",";
-    // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-    // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-    // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-    // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-    // cout << tree->qMap->csv() << ",";
-    // if (mapping_time > 0) {
-    //     t2t = mapping_time;
-    //     mt = 0;
-    //     ttt = tbt + mapping_time;
-    // } else {
-    //     t2t = 0;
-    //     mt = tree->qMap->elapsedTime();
-    //     ttt = total_time;
-    // }
-    // cout << tbt << "," << mt << "," << t2t << "," << ttt;
+    cout << FLAGS_iter << ",";
+    cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+    cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+    cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+    cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+    cout << tree->qMap->csv() << ",";
+    if (mapping_time > 0) {
+        t2t = mapping_time;
+        mt = 0;
+        ttt = tbt + mapping_time;
+    } else {
+        t2t = 0;
+        mt = tree->qMap->elapsedTime();
+        ttt = total_time;
+    }
+    cout << tbt << "," << mt << "," << t2t << "," << ttt;
 }
+
+// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
+//     double tbt, mt, t2t, ttt;
+//     tbt = total_time - tree->qMap->elapsedTime();
+//     T * leafsData = tree->getLeafsData();
+//     vector<Node<T> *> leafs;
+//     tree->root->getLeafs(leafs);
+
+
+//     cout << "queries        : " << FLAGS_queries << endl;
+//     cout << "avg rangesize  : " << queriesMeta[1] << endl;
+//     cout << "avg node length: " << leafsData[0] << endl;
+//     cout << "leaf nodes     : " << leafsData[3] << endl;
+//     cout << "leaf size      : " << FLAGS_leaf_size << endl;
+//     // cout << FLAGS_iter << ",";
+//     // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
+//     // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
+//     // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
+//     // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
+//     // cout << tree->qMap->csv() << ",";
+//     // if (mapping_time > 0) {
+//     //     t2t = mapping_time;
+//     //     mt = 0;
+//     //     ttt = tbt + mapping_time;
+//     // } else {
+//     //     t2t = 0;
+//     //     mt = tree->qMap->elapsedTime();
+//     //     ttt = total_time;
+//     // }
+//     // cout << tbt << "," << mt << "," << t2t << "," << ttt;
+// }
 
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
@@ -189,7 +189,7 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * 
         Tinterval leaf = (*itq)->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        string ** temp = new string * [leaf.length()];
+        T ** temp = new T * [leaf.length()];
 
         for (int i = leaf.min; i < leaf.max; i += 1) {
             temp[i - leaf.min] = NULL;
@@ -199,7 +199,7 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * 
             it->Next()
         ) {
             int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new string(it->value().ToString());
+            temp[key - leaf.min] = new T(stoi(it->value().ToString()));
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -211,28 +211,27 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * 
             Tinterval limits = (*itq)->hashmap[i].second;
 
             if (FLAGS_write_disk) {
-                // string file_name = getFileName(*query);
-                // ofstream ofile(file_name, std::ios_base::app);
-                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                //     sum += stoi(*temp[i]);
-                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                // }
-                // ofile.close();
+                string file_name = getFileName(*query);
+                ofstream ofile(file_name, std::ios_base::app);
+                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                    sum += *temp[i];
+                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                }
+                ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    sum += *temp[j];
                 }
             }
-
         }
         et_2 = std::chrono::system_clock::now();
         elapsed_timer = et_2 - st_2;
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
-    printTimes(queriesMeta, tree, 0, 0);
-    cout << "db Exec time : " << db_exec_time << endl;
-    cout << "Postfiltering: " << post_filtering_time << endl;
+    printTimes(queriesMeta, tree, tree_total_time, mapping_time);
+    double totaltime = tree_total_time + mapping_time + db_exec_time + post_filtering_time;
+    cout << "," << db_exec_time << "," << post_filtering_time << "," << totaltime;
     cout << endl;
 
     return sum;
@@ -263,7 +262,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * querie
         Tinterval leaf = itq->first->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        string ** temp = new string * [leaf.length()];
+        T ** temp = new T * [leaf.length()];
 
         for (int i = leaf.min; i < leaf.max; i += 1) {
             temp[i - leaf.min] = NULL;
@@ -273,7 +272,7 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * querie
             it->Next()
         ) {
             int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new string(it->value().ToString());
+            temp[key - leaf.min] = new T(stoi(it->value().ToString()));
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -289,28 +288,28 @@ long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * querie
             }
 
             if (FLAGS_write_disk) {
-                // string file_name = getFileName(*query);
-                // ofstream ofile(file_name, std::ios_base::app);
-                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                //     sum += stoi(*temp[i]);
-                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                // }
-                // ofile.close();
+                string file_name = getFileName(*query);
+                ofstream ofile(file_name, std::ios_base::app);
+                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                    sum += *temp[i];
+                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                }
+                ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    sum += (*temp[j]);
                 }
             }
-
         }
+
         et_2 = std::chrono::system_clock::now();
         elapsed_timer = et_2 - st_2;
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
-    printTimes(queriesMeta, tree, 0, 0);
-    cout << "db Exec time : " << db_exec_time << endl;
-    cout << "Postfiltering: " << post_filtering_time << endl;
+    printTimes(queriesMeta, tree, tree_total_time);
+    double totaltime = tree_total_time + db_exec_time + post_filtering_time;
+    cout << "," << db_exec_time << "," << post_filtering_time << "," << totaltime;
     cout << endl;
 
 
@@ -342,7 +341,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queri
         Tinterval leaf = itq->first->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        string ** temp = new string * [leaf.length()];
+        T ** temp = new T * [leaf.length()];
 
         for (int i = leaf.min; i < leaf.max; i += 1) {
             temp[i - leaf.min] = NULL;
@@ -352,7 +351,7 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queri
             it->Next()
         ) {
             int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new string(it->value().ToString());
+            temp[key - leaf.min] = new T(stoi(it->value().ToString()));
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -364,16 +363,16 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queri
             Tinterval limits = itq->second[i].second;
 
             if (FLAGS_write_disk) {
-                // string file_name = getFileName(*query);
-                // ofstream ofile(file_name, std::ios_base::app);
-                // for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                //     sum += stoi(*temp[i]);
-                //     ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                // }
-                // ofile.close();
+                string file_name = getFileName(*query);
+                ofstream ofile(file_name, std::ios_base::app);
+                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+                    sum += *temp[i];
+                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+                }
+                ofile.close();
             } else {
                 for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += stoi(*temp[j]);
+                    sum += *temp[j];
                 }
             }
 
@@ -383,9 +382,9 @@ long eager(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queri
         post_filtering_time += elapsed_timer.count();
     }
     delete it;
-    printTimes(queriesMeta, tree, 0, 0);
-    cout << "db Exec time : " << db_exec_time << endl;
-    cout << "Postfiltering: " << post_filtering_time << endl;
+    printTimes(queriesMeta, tree, tree_total_time);
+    double totaltime = tree_total_time + db_exec_time + post_filtering_time;
+    cout << "," << db_exec_time << "," << post_filtering_time << "," << totaltime;
     cout << endl;
 
     return sum;
