@@ -62,6 +62,20 @@ vector<Tinterval> create_queries(T num_queries, T domain_size, T range_size, boo
     return result;
 }
 
+vector<Tinterval> create_sequential_queries(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int min_range_size=0, int max_range_size=0, int percentage_point_queries=0) {
+    srand(SEED);
+    vector<Tinterval> result;
+
+    for (int i = 0; i < num_queries; i += 1) {
+        Tinterval newInterval = Tinterval((i * range_size) % (domain_size - range_size), ((i + 1) * range_size) % (domain_size));
+        result.push_back(newInterval);
+
+    }
+
+    return result;
+}
+
+
 vector<Tinterval> create_queries_zipf(T num_queries, T domain_size, T range_size, bool random_range_sizes=false, int min_range_size=0, int max_range_size=0, int percentage_point_queries=0) {
     T max_random = domain_size - range_size;
     srand(SEED);

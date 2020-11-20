@@ -14,6 +14,7 @@ def measure():
     queries = [
         i for i in range(10, 100000, 10)
     ]
+    # queries = [10, 100, 1000]
     distribution = 'normal'
     leaf_size = 100
     range_size = 100

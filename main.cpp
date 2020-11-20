@@ -60,37 +60,6 @@ void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time,
     cout << tbt << "," << mt << "," << t2t << "," << ttt;
 }
 
-// void printTimes(T * queriesMeta, Tree <Traits <T> > * & tree, double total_time, double mapping_time = 0) {
-//     double tbt, mt, t2t, ttt;
-//     tbt = total_time - tree->qMap->elapsedTime();
-//     T * leafsData = tree->getLeafsData();
-//     vector<Node<T> *> leafs;
-//     tree->root->getLeafs(leafs);
-
-
-//     cout << "queries        : " << FLAGS_queries << endl;
-//     cout << "avg rangesize  : " << queriesMeta[1] << endl;
-//     cout << "avg node length: " << leafsData[0] << endl;
-//     cout << "leaf nodes     : " << leafsData[3] << endl;
-//     cout << "leaf size      : " << FLAGS_leaf_size << endl;
-//     // cout << FLAGS_iter << ",";
-//     // cout << FLAGS_strategy << "," << FLAGS_distribution << "," << FLAGS_queries << ",";
-//     // cout << FLAGS_key_domain_size << "," << FLAGS_leaf_size << "," << FLAGS_range_size << ",";
-//     // cout << queriesMeta[0] << "," << queriesMeta[1] << "," << queriesMeta[2] << ",";
-//     // cout << leafsData[0] << "," << leafsData[3] << "," << leafsData[4] << ",";
-//     // cout << tree->qMap->csv() << ",";
-//     // if (mapping_time > 0) {
-//     //     t2t = mapping_time;
-//     //     mt = 0;
-//     //     ttt = tbt + mapping_time;
-//     // } else {
-//     //     t2t = 0;
-//     //     mt = tree->qMap->elapsedTime();
-//     //     ttt = total_time;
-//     // }
-//     // cout << tbt << "," << mt << "," << t2t << "," << ttt;
-// }
-
 bool compareInterval(LeafNode<T> * i1, LeafNode<T> * i2)
 {
     return (i1->interval.min < i2->interval.min);
@@ -402,7 +371,7 @@ int main(int argc, char** argv) {
     if (FLAGS_distribution == "zipf") {
         queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     } else {
-        queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
+        queries = create_sequential_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
     rocksdb::DB* db;
