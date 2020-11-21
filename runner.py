@@ -4,27 +4,27 @@ import sys
 from datetime import datetime
 
 
-def measure():
-    print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,exec time,post filtering time,total time')
+# def measure():
+#     print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,exec time,post filtering time,total time')
 
-    iters = 3
-    strategies = [
-        'additional',
-    ]
-    queries = [
-        i for i in range(10, 100000, 1000)
-    ]
-    # queries = [10, 100, 1000]
-    distribution = 'normal'
-    leaf_size = 100
-    range_size = 100
-    domain = 100000000
+#     iters = 3
+#     strategies = [
+#         'additional',
+#     ]
+#     queries = [
+#         i for i in range(10, 100000, 1000)
+#     ]
+#     # queries = [10, 100, 1000]
+#     distribution = 'normal'
+#     leaf_size = 100
+#     range_size = 100
+#     domain = 100000000
 
-    for num_queries in queries:
-        for strategy in strategies:
-            for i in range(iters):
-                command = f"./main.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
-                os.system(command)
+#     for num_queries in queries:
+#         for strategy in strategies:
+#             for i in range(iters):
+#                 command = f"./main.out --distribution={distribution} --iter={i} --strategy={strategy} --queries={num_queries} --key_domain_size={domain} --leaf_size={leaf_size} --range_size={range_size}"
+#                 os.system(command)
 
 
 
@@ -133,6 +133,6 @@ def profiling():
 
 
 if __name__ == '__main__':
-    measure()
-    # experiment1()
+    # measure()
+    experiment1()
     # profiling()
