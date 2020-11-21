@@ -371,7 +371,7 @@ int main(int argc, char** argv) {
     if (FLAGS_distribution == "zipf") {
         queries = create_queries_zipf(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     } else {
-        queries = create_sequential_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
+        queries = create_queries(FLAGS_queries, FLAGS_key_domain_size, FLAGS_range_size, FLAGS_random_range_size, FLAGS_min_range_size, FLAGS_max_range_size, FLAGS_percentage_point_queries);
     }
 
     rocksdb::DB* db;
