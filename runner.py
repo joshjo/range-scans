@@ -12,7 +12,7 @@ def measure():
         'additional',
     ]
     queries = [
-        i for i in range(10, 100000, 10)
+        i for i in range(10, 100000, 1000)
     ]
     # queries = [10, 100, 1000]
     distribution = 'normal'
