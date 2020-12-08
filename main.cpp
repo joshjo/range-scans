@@ -153,50 +153,50 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * 
     vector <LeafNode<T> *> nodes = leaftree.nodes();
     sort(nodes.begin(), nodes.end(), compareInterval);
 
-    for (auto itq = nodes.begin(); itq < nodes.end(); itq++) {
-        auto st_2 = std::chrono::system_clock::now();
-        Tinterval leaf = (*itq)->interval;
-        string start = to_string(leaf.min);
-        string limit = to_string(leaf.max);
-        T ** temp = new T * [leaf.length()];
+    // for (auto itq = nodes.begin(); itq < nodes.end(); itq++) {
+    //     auto st_2 = std::chrono::system_clock::now();
+    //     Tinterval leaf = (*itq)->interval;
+    //     string start = to_string(leaf.min);
+    //     string limit = to_string(leaf.max);
+    //     T ** temp = new T * [leaf.length()];
 
-        for (int i = leaf.min; i < leaf.max; i += 1) {
-            temp[i - leaf.min] = NULL;
-        }
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < leaf.max;
-            it->Next()
-        ) {
-            int key = stoi(it->key().ToString());
-            temp[key - leaf.min] = new T(stoi(it->value().ToString()));
-        }
-        auto et_2 = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-        db_exec_time += elapsed_timer.count();
+    //     for (int i = leaf.min; i < leaf.max; i += 1) {
+    //         temp[i - leaf.min] = NULL;
+    //     }
+    //     for (it->Seek(start);
+    //         it->Valid() && stoi(it->key().ToString()) < leaf.max;
+    //         it->Next()
+    //     ) {
+    //         int key = stoi(it->key().ToString());
+    //         temp[key - leaf.min] = new T(stoi(it->value().ToString()));
+    //     }
+    //     auto et_2 = std::chrono::system_clock::now();
+    //     std::chrono::duration<double> elapsed_timer = et_2 - st_2;
+    //     db_exec_time += elapsed_timer.count();
 
-        st_2 = std::chrono::system_clock::now();
-        for(size_t i = 0; i < (*itq)->hashmap.size(); i++) {
-            Tinterval * query = (*itq)->hashmap[i].first;
-            Tinterval limits = (*itq)->hashmap[i].second;
+    //     st_2 = std::chrono::system_clock::now();
+    //     for(size_t i = 0; i < (*itq)->hashmap.size(); i++) {
+    //         Tinterval * query = (*itq)->hashmap[i].first;
+    //         Tinterval limits = (*itq)->hashmap[i].second;
 
-            if (FLAGS_write_disk) {
-                string file_name = getFileName(*query);
-                ofstream ofile(file_name, std::ios_base::app);
-                for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
-                    sum += *temp[i];
-                    ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
-                }
-                ofile.close();
-            } else {
-                for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
-                    sum += *temp[j];
-                }
-            }
-        }
-        et_2 = std::chrono::system_clock::now();
-        elapsed_timer = et_2 - st_2;
-        post_filtering_time += elapsed_timer.count();
-    }
+    //         if (FLAGS_write_disk) {
+    //             string file_name = getFileName(*query);
+    //             ofstream ofile(file_name, std::ios_base::app);
+    //             for (T i = limits.min - leaf.min; i < (limits.max - leaf.min); i += 1) {
+    //                 sum += *temp[i];
+    //                 ofile << i + leaf.min << " - " << (*temp[i]) << "\n";
+    //             }
+    //             ofile.close();
+    //         } else {
+    //             for (T j = limits.min - leaf.min; j < (limits.max - leaf.min); j++) {
+    //                 sum += *temp[j];
+    //             }
+    //         }
+    //     }
+    //     et_2 = std::chrono::system_clock::now();
+    //     elapsed_timer = et_2 - st_2;
+    //     post_filtering_time += elapsed_timer.count();
+    // }
     delete it;
     printTimes(queriesMeta, tree, tree_total_time, mapping_time);
     double totaltime = tree_total_time + mapping_time + db_exec_time + post_filtering_time;
