@@ -176,7 +176,6 @@ void additionalPostProcessing(
         ) {
             int key = stoi(it->key().ToString());
             temp[key-leaf.min] = new T(stoll(it->value().ToString()));
-            // temp[key - leaf.min] = new string(it->value().ToString());
         }
         auto et_2 = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_timer = et_2 - st_2;
@@ -426,6 +425,7 @@ void eager(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
 
 
 void lazy(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
+    cout << "heereee" << endl;
     auto start_time = std::chrono::system_clock::now();
     QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
     Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
@@ -439,7 +439,7 @@ void lazy(vector <Tinterval> & queries, T leaf_size, T * queriesMeta) {
     double total_time = elapsed_seconds.count();
 
     double ttt = printTimes(queriesMeta, tree, total_time);
-    lazyPostProcessing(queries, tree, qMap, ttt);
+    // lazyPostProcessing(queries, tree, qMap, ttt);
     cout << endl;
 }
 

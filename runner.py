@@ -29,8 +29,6 @@ def measure():
                 os.system(command)
 
 
-
-
 def experiment1():
     print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,exec time,post filtering time,total time')
 
@@ -41,13 +39,13 @@ def experiment1():
         'additional',
     ]
     queries = [
-        # 10,
-        # 100,
-        # 1000,
-        # 10000,
-        # 100000,
-        # 1000000,
-        10000000,
+        10,
+        100,
+        1000,
+        10000,
+        100000,
+        1000000,
+        # 10000000,
     ]
     distribution = 'normal'
     leaf_size = 100000
@@ -136,6 +134,6 @@ def profiling():
 
 
 if __name__ == '__main__':
-    measure()
-    # experiment1()
+    # measure()
+    experiment1()
     # profiling()
