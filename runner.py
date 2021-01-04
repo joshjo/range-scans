@@ -48,9 +48,9 @@ def experiment1():
         # 10000000,
     ]
     distribution = 'normal'
-    leaf_size = 100000
-    range_size = 100000
-    domain = 1000000
+    leaf_size = 10000
+    range_size = 10000
+    domain = 100000
 
     for num_queries in queries:
         for strategy in strategies:
