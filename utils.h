@@ -3,7 +3,7 @@
 
 #define SEED 100
 
-#include "../interval-base-tree/src/newtree.h"
+#include "../interval-tree/src/newtree.h"
 
 #include "zipf.h"
 

@@ -5,7 +5,7 @@
 #include "numeric_comparator.h"
 #include "result.h"
 #include "utils.h"
-#include "../interval-base-tree/src/newtree.h"
+#include "../interval-tree/src/newtree.h"
 
 DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(key_domain_size, 1000000, "Key domain size");

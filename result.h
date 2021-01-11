@@ -1,7 +1,7 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "../interval-base-tree/src/newtree.h"
+#include "../interval-tree/src/newtree.h"
 
 
 using namespace std;

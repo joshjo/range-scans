@@ -1,6 +1,6 @@
 #include <gflags/gflags.h>
 
-#include "../interval-base-tree/src/newtree.h"
+#include "../interval-tree/src/newtree.h"
 
 #include "result.h"
 #include "utils.h"

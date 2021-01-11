@@ -8,9 +8,9 @@
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
 #include "numeric_comparator.h"
-#include "../interval-base-tree/src/tree.h"
-#include "../interval-base-tree/src/leaftree.h"
-#include "../interval-base-tree/src/config.h"
+#include "../interval-tree/src/tree.h"
+#include "../interval-tree/src/leaftree.h"
+#include "../interval-tree/src/config.h"
 
 typedef Interval<int> Tinterval;
 
