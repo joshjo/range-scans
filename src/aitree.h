@@ -178,7 +178,6 @@ public:
             }
             s->update_weights();
         }
-
     }
 
     void left_rotation(Tnode * p) {

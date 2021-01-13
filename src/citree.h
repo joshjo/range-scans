@@ -15,7 +15,6 @@ T getMedian(vector<T> & s) {
         return s[middle];
     }
 
-    cout << "heeeereeeeeee: " << s[middle] + s[middle - 1] << endl;
     return (float) (s[middle] + s[middle - 1]) / 2;
 }
 
@@ -52,7 +51,7 @@ class CINode {
     }
 
     string to_graphviz(string iter = "") {
-        string str = "\"[" + to_string(value) + "]" + "{" + iter + "}" + "\"";
+        string str = "\"[" + to_string(value) + "]" + "{" + to_string(centers.size()) + "}" + "\"";
         return str;
     }
 };
@@ -82,7 +81,7 @@ class CITree {
             if (t.intersects(M)) {
                 // Centered intervals
                 node->centers.push_back(intervals[i]);
-            } else if (t.max < M) {
+            } else if (t.max <= M) {
                 // Intervals that goes to the left
                 lefts.push_back(intervals[i]);
             } else if (t.length() > 0) {
@@ -105,6 +104,29 @@ class CITree {
         // for(int i = 0; i < endpoints.size(); i++) {
         //     cout << endpoints[i] << " ";
         // }
+    }
+
+    vector <Tinterval * > find(T key) {
+        vector<Tinterval *> result;
+        priority_queue<Tnode *> q;
+        q.push(root);
+        while (!q.empty()) {
+            Tnode * top = q.top();
+            q.pop();
+            if (top == NULL) {
+                continue;
+            }
+            for (int i = 0; i < top->centers.size(); i++) {
+                if (top->centers[i].intersects(key)) {
+                    result.push_back(&(top->centers[i]));
+                }
+            }
+
+            q.push(top->left);
+            q.push(top->right);
+        }
+
+        return result;
     }
 
     void graphviz(Tnode *node, string & tree, string iter="") {
@@ -132,6 +154,27 @@ class CITree {
         graphviz(root, tree, iter);
         // str += tree + "}";
         return tree;
+    }
+
+    size_t numberOfIntervals() {
+        size_t count = 0;
+        priority_queue<Tnode *> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            Tnode * top = q.top();
+            q.pop();
+            if (top == NULL) {
+                continue;
+            }
+
+            count += top->centers.size();
+
+            q.push(top->left);
+            q.push(top->right);
+        }
+
+        return count;
     }
 };
 
