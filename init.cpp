@@ -13,20 +13,55 @@ int main() {
 
     vector<Interval<T>> intervals;
 
-    for(int i = 0; i < 1000; i += 1) {
-        // cout << rand() % 100000 << endl;
-        long r = rand() % 1000;
-        int w = ((rand() % 9) + 1) * 10;
+    T val_to_find = 9087;
+
+    for(int i = 0; i < 100000; i += 1) {
+        long r = rand() % 1000000;
+        int w = ((rand() % 9) + 1) * 1000;
         intervals.push_back(Interval<T>(r, r + w));
     }
 
+    auto st_ci = chrono::system_clock::now();
     citree.insert(intervals);
+    auto et_ci = chrono::system_clock::now();
+    chrono::duration<double> es_ci = et_ci - st_ci;
 
     cout << citree.numberOfIntervals() << endl;
 
-    vector<Interval<T> *> vresult = citree.find(450);
+    auto st_cf = chrono::system_clock::now();
+    vector<Interval<T> *> ci_result = citree.find(val_to_find);
+    auto et_cf = chrono::system_clock::now();
+    chrono::duration<double> es_cf = et_cf - st_cf;
 
-    cout << vresult.size() << endl;
+    cout << "ci insert: " << es_ci.count() << endl;
+    cout << "ci find  : " << es_cf.count() << endl;
+    cout << "count    : " << ci_result.size() << endl;
+
+    auto st_ai = chrono::system_clock::now();
+    for (int i = 0; i < intervals.size(); i++) {
+        aitree.insert(intervals[i]);
+    }
+    auto et_ai = chrono::system_clock::now();
+    chrono::duration<double> es_ai = et_ai - st_ai;
+
+    auto st_af = chrono::system_clock::now();
+    vector<Interval<T> *> ai_result = aitree.find(val_to_find);
+    auto et_af = chrono::system_clock::now();
+
+    chrono::duration<double> es_af = et_af - st_af;
+
+    cout << "ai insert: " << es_ai.count() << endl;
+    cout << "ai find  : " << es_af.count() << endl;
+    cout << "count    : " << ai_result.size() << endl;
+
+    // cout << node->centers.size() << endl;
+
+    // cout << "node: " << node-> << endl;
+
+
+    // for(int i = 0; i < ci_result.size(); i++) {
+    //     cout << *(ci_result[i]) << endl;
+    // }
 
 
     // intervals.push_back(Interval<long>(1224653905, 1224653925));
