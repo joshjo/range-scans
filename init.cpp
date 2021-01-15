@@ -13,11 +13,13 @@ int main() {
 
     vector<Interval<T>> intervals;
 
-    T val_to_find = 9087;
+    T val_to_find = 10;
 
-    for(int i = 0; i < 100000; i += 1) {
-        long r = rand() % 1000000;
-        int w = ((rand() % 9) + 1) * 1000;
+    int to_insert = 100;
+
+    for(int i = 0; i < to_insert; i += 1) {
+        long r = rand() % 100;
+        int w = ((rand() % 9) + 1) * 100;
         intervals.push_back(Interval<T>(r, r + w));
     }
 
@@ -39,7 +41,14 @@ int main() {
 
     auto st_ai = chrono::system_clock::now();
     for (int i = 0; i < intervals.size(); i++) {
-        aitree.insert(intervals[i]);
+
+        if (i > (to_insert - 2)) {
+            // cout << intervals[i] << endl;
+            aitree.insert(intervals[i]);
+            // cout << aitree.graphviz(to_string(i)) << endl << endl << endl;
+        } else {
+            aitree.insert(intervals[i]);
+        }
     }
     auto et_ai = chrono::system_clock::now();
     chrono::duration<double> es_ai = et_ai - st_ai;
@@ -54,14 +63,28 @@ int main() {
     cout << "ai find  : " << es_af.count() << endl;
     cout << "count    : " << ai_result.size() << endl;
 
+    cout << "------> " << aitree.count() << endl;
+
     // cout << node->centers.size() << endl;
 
     // cout << "node: " << node-> << endl;
 
 
+    // cout << "centered interval tree: " << endl;
+
     // for(int i = 0; i < ci_result.size(); i++) {
     //     cout << *(ci_result[i]) << endl;
     // }
+
+    // cout << "------------- asdasdasdasd ----------------- " << endl;
+
+    // // cout << "augmented interval tree: " << endl;
+
+    // for(int i = 0; i < ai_result.size(); i++) {
+    //     cout << *(ai_result[i]) << endl;
+    // }
+
+    // cout << aitree.graphviz() << endl;
 
 
     // intervals.push_back(Interval<long>(1224653905, 1224653925));
@@ -81,4 +104,5 @@ int main() {
     // cout << citree.root->left->centers.size() << endl;
 
     // cout << citree.graphviz() << endl;
+    // cout << aitree.verifyWeights() << endl;
 }

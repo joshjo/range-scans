@@ -28,9 +28,13 @@ public:
     }
 
     void update_weights(bool debug=false) {
-        if (this->parent != NULL && this->max > parent->interval.max) {
-            parent->max = this->max;
-            parent->update_weights(debug);
+        if (this->parent != NULL) {
+            if (this->max > parent->max) {
+                parent->max = this->max;
+            }
+            if (this->max > parent->interval.max) {
+                parent->update_weights(debug);
+            }
         }
     }
 
@@ -195,6 +199,12 @@ public:
         p->right = (*aux)->left;
         (*aux)->left = p;
 
+        p->update_weights();
+
+        if (p->parent) {
+            p->parent->update_weights();
+        }
+
         if (p->right != NULL) {
             p->right->parent = p;
             p->right->update_weights();
@@ -211,10 +221,16 @@ public:
         }
 
         *aux = p->left;
-        (*aux)->parent = p->parent;
+        (*aux)->parent = p->parent; // p->parent->parent
         p->parent = (*aux);
         p->left = (*aux)->right;
         (*aux)->right = p;
+
+        p->update_weights();
+
+        if (p->parent) {
+            p->parent->update_weights();
+        }
 
         if (p->left != NULL) {
             p->left->parent = p;
@@ -245,6 +261,29 @@ public:
         }
 
         return result;
+    }
+
+    bool verifyWeights() {
+        priority_queue<Tnode *> q;
+
+        q.push(root);
+
+        while(!q.empty()) {
+            Tnode * top = q.top();
+            q.pop();
+
+            if (top == NULL) {
+                continue;
+            }
+
+            if ((top->left && top->max < top->left->max) || (top->right && top->max < top->right->max)) {
+                return false;
+            }
+            q.push(top->left);
+            q.push(top->right);
+        }
+
+        return true;
     }
 
     size_t count(){
