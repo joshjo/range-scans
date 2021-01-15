@@ -1,5 +1,5 @@
 #ifndef INTERVAL_H
-#define NEWTREE_H
+#define INTERVAL_H
 
 #include "includes.h"
 

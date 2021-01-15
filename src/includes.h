@@ -15,6 +15,7 @@
 #include <queue>
 #include <time.h>
 #include <string>
+#include <sstream>
 
 #define INF (unsigned)!((int)0)
 
