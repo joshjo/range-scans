@@ -5,26 +5,31 @@
 using namespace std;
 
 typedef long long T;
+typedef Query<T> Tquery;
 
 int main() {
     srand(100);
-    vector<Query<T> *> user_queries;
+    vector<Tquery *> user_queries;
     int to_insert = 100;
 
     for(int i = 0; i < to_insert; i += 1) {
         long r = rand() % 100;
         int w = ((rand() % 9) + 1) * 100;
-        user_queries.push_back(new Query<T>(Interval<T>(r, r + w)));
+        user_queries.push_back(new Tquery(Interval<T>(r, r + w)));
     }
 
-
-
-    // Query<T> q;
-
     // CITree<T> citree;
-    // AITree<T> aitree;
+    AITree<T> aitree;
+    for (int i = 0; i < user_queries.size(); i++) {
+        // cout << user_queries[i]->interval << endl;
+        aitree.insert(user_queries[i]);
+    }
 
+    vector<Tquery *> results = aitree.find(6);
 
+    cout << results.size() << endl;
+
+    // cout << aitree.size() << endl;
 
     // T val_to_find = 10;
 

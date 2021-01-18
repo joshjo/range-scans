@@ -2,6 +2,8 @@
 #define AITREE_H
 
 #include "includes.h"
+#include "query.h"
+
 
 using namespace std;
 
@@ -10,6 +12,7 @@ class AINode {
 public:
     typedef Interval<T> Tinterval;
     typedef AINode<T> Tnode;
+    typedef Query<T> Tquery;
     Tnode * left;
     Tnode * right;
     Tnode * parent;
@@ -17,9 +20,11 @@ public:
     bool color;
 
     Tinterval interval;
+    vector<Tquery *> queries;
 
-    AINode(Tinterval interval) {
-        this->interval = interval;
+    AINode(Tquery * query) {
+        this->interval = query->interval;
+        queries.push_back(query);
         left = NULL;
         right = NULL;
         parent = NULL;
@@ -78,13 +83,15 @@ class AITree {
 public:
     typedef Interval<T> Tinterval;
     typedef AINode<T> Tnode;
+    typedef Query<T> Tquery;
+
     Tnode * root;
 
     AITree() {
         root = NULL;
     }
 
-    Tnode ** search(Tinterval interval, Tnode * & parent = NULL) {
+    Tnode ** search(Tinterval & interval, Tnode * & parent = NULL) {
         Tnode ** visitor = &(this->root);
         while ((*visitor) != NULL) {
             parent = *visitor;
@@ -100,17 +107,18 @@ public:
         return visitor;
     }
 
-    bool insert(Tinterval & newInterval) {
+    bool insert(Tquery * newQuery) {
         /*
             The insertion is based in wikipedia:
             https://es.wikipedia.org/wiki/%C3%81rbol_rojo-negro
         */
         Tnode * parent = NULL;
-        Tnode ** searchNode = this->search(newInterval, parent);
+        Tnode ** searchNode = this->search(newQuery->interval, parent);
         if ((*searchNode) != NULL) {
+            (*searchNode)->queries.push_back(newQuery);
             return false;
         }
-        (*searchNode) = new Tnode(newInterval);
+        (*searchNode) = new Tnode(newQuery);
         (*searchNode)->parent = parent;
         insert_case1(*searchNode);
 
@@ -238,8 +246,8 @@ public:
         }
     }
 
-    vector <Tinterval * > find(T key) {
-        vector <Tinterval * > result;
+    vector <Tquery * > find(T key) {
+        vector <Tquery * > result;
         priority_queue<Tnode *> q;
 
         if (root != NULL) {
@@ -249,7 +257,7 @@ public:
                 Tnode * top = q.top();
                 q.pop();
                 if (top->interval.intersects(key)) {
-                    result.push_back(&(top->interval));
+                    result.insert(result.end(), top->queries.begin(), top->queries.end());
                 }
                 if (top->left != NULL && key < top->left->max) {
                     q.push(top->left);
@@ -286,7 +294,7 @@ public:
         return true;
     }
 
-    size_t count(){
+    size_t size(){
         priority_queue<Tnode *> q;
         size_t result = 0;
 
@@ -295,7 +303,7 @@ public:
 
             while (!q.empty()) {
                 Tnode * top = q.top();
-                result += 1;
+                result += top->queries.size();
                 q.pop();
 
                 if (top->left != NULL) {
