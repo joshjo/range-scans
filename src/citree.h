@@ -3,6 +3,7 @@
 
 #include "includes.h"
 #include "interval.h"
+#include "query.h"
 
 using namespace std;
 
@@ -19,14 +20,12 @@ T getMedian(vector<T> & s) {
 }
 
 template <class T>
-vector<T> getEndpoints(vector <Interval<T> > & intervals) {
-    vector<T> allEndpoints;
-    for (size_t i = 0; i < intervals.size(); i++) {
-        allEndpoints.push_back(intervals[i].min);
-        allEndpoints.push_back(intervals[i].max);
+vector<T> getEndpoints(vector <Query<T> * > & queries) {
+    set<T> s;
+    for (size_t i = 0; i < queries.size(); i++) {
+        s.insert(queries[i]->interval.min);
+        s.insert(queries[i]->interval.max);
     }
-
-    set<T> s(allEndpoints.begin(), allEndpoints.end());
 
     vector <T> result (s.begin(), s.end());
     return result;
@@ -37,11 +36,13 @@ class CINode {
     public:
     typedef Interval<T> Tinterval;
     typedef CINode<T> Tnode;
+    typedef Query<T> Tquery;
+
     Tnode * left;
     Tnode * right;
     Tnode * parent;
     T value;
-    vector<Tinterval *> centers;
+    vector<Tquery *> centers;
 
     CINode(T val) {
         this->value = val;
@@ -61,6 +62,7 @@ class CITree {
     public:
     typedef Interval<T> Tinterval;
     typedef CINode<T> Tnode;
+    typedef Query<T> Tquery;
 
     Tnode * root;
 
@@ -68,72 +70,38 @@ class CITree {
         root = NULL;
     }
 
-    void build(vector <Tinterval> &intervals, Tnode * & node) {
-        if (! intervals.size()) {
+    void __build(vector <Tquery *> & queries, Tnode * & node) {
+        if (! queries.size()) {
             return;
         }
-        vector <T> ee = getEndpoints(intervals);
+        vector <T> ee = getEndpoints(queries);
         T M = getMedian(ee);
         node = new Tnode(M);
-        vector<Tinterval> lefts, rights;
-        for (size_t i = 0; i < intervals.size(); i++) {
-            Interval<T> * t = &(intervals[i]);
-            if (t->intersects(M)) {
+        vector<Tquery *> lefts, rights;
+        for (size_t i = 0; i < queries.size(); i++) {
+            // Interval<T> * t = &(intervals[i]);
+            if (queries[i]->interval.intersects(M)) {
                 // Centered intervals
-                node->centers.push_back(new Tinterval(*t));
-
-                // if (M == 731436) {
-                //     // cout << "t: " << *(node->centers[i]) << endl;
-                // }
-            } else if (t->max <= M) {
+                node->centers.push_back(queries[i]);
+            } else if (queries[i]->interval.max <= M) {
                 // Intervals that goes to the left
-                lefts.push_back(*t);
-            } else if (t->length() > 0) {
+                lefts.push_back(queries[i]);
+            } else if (queries[i]->interval.length() > 0) {
                 // Go to right, the if exclude intervals with 0=length
-                rights.push_back(*t);
+                rights.push_back(queries[i]);
             }
         }
 
-        build(lefts, node->left);
-        build(rights, node->right);
+        __build(lefts, node->left);
+        __build(rights, node->right);
     }
 
-    void insert(vector <Tinterval> & intervals) {
-        build(intervals, root);
-
-        // vector<T> endpoints = getEndpoints(intervals);
-
-        // T ee = getMedian(endpoints);
-
-        // for(int i = 0; i < endpoints.size(); i++) {
-        //     cout << endpoints[i] << " ";
-        // }
+    void insert(vector <Tquery *> & queries) {
+        __build(queries, root);
     }
 
-    Tnode * findMiddle(T val) {
-        Tnode * result = root;
-        priority_queue<Tnode *> q;
-        q.push(root);
-
-        while (!q.empty()) {
-            Tnode * top = q.top();
-            q.pop();
-            if (top == NULL) {
-                continue;
-            }
-            if (top->value == val) {
-                result = top;
-                break;
-            }
-            q.push(top->left);
-            q.push(top->right);
-        }
-
-        return result;
-    }
-
-    vector <Tinterval * > find(T key) {
-        vector<Tinterval *> result;
+    vector <Tquery * > find(T key) {
+        vector<Tquery *> result;
         priority_queue<Tnode *> q;
         q.push(root);
         while (!q.empty()) {
@@ -143,7 +111,7 @@ class CITree {
                 continue;
             }
             for (int i = 0; i < top->centers.size(); i++) {
-                if (top->centers[i]->intersects(key)) {
+                if (top->centers[i]->interval.intersects(key)) {
 
                     // cout << top->value << endl;
                     // cout << "centers " << *(top->centers[i]) << endl;
@@ -186,7 +154,7 @@ class CITree {
         return tree;
     }
 
-    size_t numberOfIntervals() {
+    size_t size() {
         size_t count = 0;
         priority_queue<Tnode *> q;
         q.push(root);
