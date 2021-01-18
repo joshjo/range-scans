@@ -21,14 +21,12 @@ T getMedian(vector<T> & s) {
 
 template <class T>
 vector<T> getEndpoints(vector <Query<T> * > & queries) {
-    set<T> s;
+    vector<T> s;
     for (size_t i = 0; i < queries.size(); i++) {
-        s.insert(queries[i]->interval.min);
-        s.insert(queries[i]->interval.max);
+        s.push_back(queries[i]->interval.min);
+        s.push_back(queries[i]->interval.max);
     }
-
-    vector <T> result (s.begin(), s.end());
-    return result;
+    return s;
 }
 
 template <class T>

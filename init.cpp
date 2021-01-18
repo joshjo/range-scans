@@ -10,18 +10,18 @@ typedef Query<T> Tquery;
 int main() {
     srand(100);
     vector<Tquery *> user_queries;
-    int to_insert = 100000;
+    int to_insert = 1000000;
 
     for(int i = 0; i < to_insert; i += 1) {
-        long r = rand() % 10000000;
-        int w = ((rand() % 9) + 1) * 10000;
+        long r = rand() % 100000000;
+        int w = ((rand() % 9) + 1) * 10000000;
         user_queries.push_back(new Tquery(Interval<T>(r, r + w)));
     }
 
     CITree<T> citree;
     AITree<T> aitree;
     // cout << aitree.size() << endl;
-    T val_to_find = 200;
+    T val_to_find = 2000000;
 
     auto st_ci = chrono::system_clock::now();
     citree.insert(user_queries);
