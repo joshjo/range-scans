@@ -7,6 +7,17 @@ using namespace std;
 typedef long long T;
 typedef Query<T> Tquery;
 
+vector<Tquery *> dummyFind(vector<Tquery *> & queries, T key) {
+    vector<Tquery *> result;
+    for (size_t i = 0; i < queries.size(); i++) {
+        if (queries[i]->interval.intersects(key)) {
+            result.push_back(queries[i]);
+        }
+    }
+
+    return result;
+}
+
 int main() {
     srand(100);
     vector<Tquery *> user_queries;
@@ -38,16 +49,8 @@ int main() {
     cout << "count    : " << ci_result.size() << endl;
 
     auto st_ai = chrono::system_clock::now();
-    for (int i = 0; i < user_queries.size(); i++) {
-        aitree.insert(user_queries[i]);
-        // if (i > (to_insert - 2)) {
-        //     // cout << intervals[i] << endl;
-        //     aitree.insert(intervals[i]);
-        //     // cout << aitree.graphviz(to_string(i)) << endl << endl << endl;
-        // } else {
-        //     aitree.insert(intervals[i]);
-        // }
-    }
+    aitree.insert(user_queries);
+
     auto et_ai = chrono::system_clock::now();
     chrono::duration<double> es_ai = et_ai - st_ai;
 
@@ -60,6 +63,15 @@ int main() {
     cout << "ai insert: " << es_ai.count() << endl;
     cout << "ai find  : " << es_af.count() << endl;
     cout << "count    : " << ai_result.size() << endl;
+
+    auto st_nn = chrono::system_clock::now();
+    vector<Tquery *> nn_result = dummyFind(user_queries, val_to_find);
+    auto et_nn = chrono::system_clock::now();
+
+    chrono::duration<double> es_nn = et_nn - st_nn;
+
+    cout << "ai find  : " << es_nn.count() << endl;
+    cout << "count    : " << nn_result.size() << endl;
 
     // cout << "------> " << aitree.count() << endl;
 

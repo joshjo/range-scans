@@ -107,7 +107,13 @@ public:
         return visitor;
     }
 
-    bool insert(Tquery * newQuery) {
+    void insert(vector<Tquery *> & queries) {
+        for(size_t i = 0; i < queries.size(); i++) {
+            insert(queries[i]);
+        }
+    }
+
+    void insert(Tquery * newQuery) {
         /*
             The insertion is based in wikipedia:
             https://es.wikipedia.org/wiki/%C3%81rbol_rojo-negro
@@ -116,7 +122,7 @@ public:
         Tnode ** searchNode = this->search(newQuery->interval, parent);
         if ((*searchNode) != NULL) {
             (*searchNode)->queries.push_back(newQuery);
-            return false;
+            return;
         }
         (*searchNode) = new Tnode(newQuery);
         (*searchNode)->parent = parent;
@@ -125,10 +131,7 @@ public:
         if (*searchNode) {
             (*searchNode)->update_weights();
         }
-
-        return true;
     }
-
     void insert_case1(Tnode * n) {
         if (n->parent == NULL ) {
             n->color = BLACK;

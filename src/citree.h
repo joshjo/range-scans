@@ -110,10 +110,6 @@ class CITree {
             }
             for (int i = 0; i < top->centers.size(); i++) {
                 if (top->centers[i]->interval.intersects(key)) {
-
-                    // cout << top->value << endl;
-                    // cout << "centers " << *(top->centers[i]) << endl;
-                    // cout << "centers " << top->centers[i] << endl;
                     result.push_back(top->centers[i]);
                 }
             }

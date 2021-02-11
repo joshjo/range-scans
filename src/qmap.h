@@ -104,6 +104,9 @@ public:
         return s;
     }
 
+    virtual void print () {
+    }
+
     virtual void postInsert() {
         // Used for LeafTree
     }
@@ -259,6 +262,17 @@ public:
         return indexed;
     }
 
+    virtual void print () {
+        for (typename qMapType::iterator itq = qMap.begin(); itq != qMap.end(); itq++) {
+            cout << "node: " << itq->first->interval << endl;
+
+            for (size_t i = 0; i < itq->second.size(); i++) {
+                cout << "\t" << "q: " << itq->second[i]->interval << endl;
+            }
+            cout << endl;
+        }
+    }
+
     void summary() {
         cout << "size: " << qMap.size() << endl;
 
@@ -278,150 +292,149 @@ public:
 };
 
 
-// template <class Tr>
-// class QMapEager : public QMapBase <Tr> {
+template <class Tr>
+class QMapEager : public QMapBase <Tr> {
 
-//     typedef typename Tr::Tinterval Tinterval;
-//     typedef typename Tr::Tquery Tquery;
-//     typedef typename Tr::Tnode Tnode;
-//     typedef pair<Tinterval *, Tinterval> qPair;
-//     typedef vector <qPair> qArray;
-//     typedef unordered_map<Tnode *, qArray> qMapType;
+    typedef typename Tr::Tinterval Tinterval;
+    typedef typename Tr::Tquery Tquery;
+    typedef typename Tr::Tnode Tnode;
+    typedef vector <Tquery *> qArray;
+    typedef unordered_map<Tnode *, qArray> qMapType;
 
-//     struct classcomp {
-//         bool operator() (const qPair& lhs, const qPair& rhs) const
-//         {return lhs<rhs;}
-//     };
+    // struct classcomp {
+    //     bool operator() (const qPair& lhs, const qPair& rhs) const
+    //     {return lhs<rhs;}
+    // };
 
-// public:
-//     qMapType qMap;
+public:
+    qMapType qMap;
 
-//     void updateIntersections (Tnode * & node) {
-//         for (typename vector <qPair>::iterator it = qMap[node].begin(); it != qMap[node].end();) {
-//             Tinterval intersection = it->first->intersection(node->interval);
-//             if (intersection.length()) {
-//                 it->second = intersection;
-//                 it++;
-//             } else {
-//                 qMap[node].erase(it);
-//             }
-//         }
-//     }
+    void updateIntersections (Tnode * & node) {
+        for (typename qArray::iterator it = qMap[node].begin(); it != qMap[node].end();) {
+            Tinterval intersection = (*it)->interval.intersection(node->interval);
+            if (intersection.length()) {
+                it++;
+            } else {
+                qMap[node].erase(it);
+            }
+        }
+    }
 
-//     void _insert(Tnode * & node, Tinterval * interval) {
-//         Tinterval intersection = interval->intersection(node->interval);
-//         qMap[node].emplace_back(make_pair(interval, intersection));
-//     }
+    void _insert(Tnode * & node, Tquery * query) {
+        qMap[node].emplace_back(query);
+    }
 
-//     void _transfer(Tnode * & from, Tnode * & to) {
-//         qMap[to] = qMap[from];
-//         this->updateIntersections(to);
-//         qMap.erase(from);
-//     }
+    void _transfer(Tnode * & from, Tnode * & to) {
+        qMap[to] = qMap[from];
+        this->updateIntersections(to);
+        qMap.erase(from);
+    }
 
-//     void _share(Tnode * & a, Tnode * & b) {
-//         // Copy all the elements from A
-//         set<qPair> tempSet;
-//         typename vector<qPair>::iterator it;
-//         qArray tempVectorA(qMap[a].begin(), qMap[a].end());
+    void _share(Tnode * & a, Tnode * & b) {
+        // Copy all the elements from A
+        typename qArray::iterator it;
+        qArray tempVectorA(qMap[a].begin(), qMap[a].end());
 
-//         for(size_t i = 0; i < qMap[b].size(); i++) {
-//             bool query_exists = false;
-//             for (size_t j = 0; j < tempVectorA.size(); j++) {
-//                 if (qMap[b][i].first == tempVectorA[j].first) {
-//                     query_exists = true;
-//                     break;
-//                 }
-//             }
-//             if (!query_exists) {
-//                 tempVectorA.emplace_back(qMap[b][i]);
-//             }
-//         }
-//         qArray tempB(tempVectorA.begin(), tempVectorA.end());
+        for(size_t i = 0; i < qMap[b].size(); i++) {
+            bool query_exists = false;
+            for (size_t j = 0; j < tempVectorA.size(); j++) {
+                // Todo: check if we can use ids here
+                if (qMap[b][i] == tempVectorA[j]) {
+                    query_exists = true;
+                    break;
+                }
+            }
+            if (!query_exists) {
+                tempVectorA.emplace_back(qMap[b][i]);
+            }
+        }
+        qArray tempVectorB(tempVectorA.begin(), tempVectorA.end());
 
-//         qMap.erase(a);
-//         qMap.erase(b);
-//         qMap[a] = tempVectorA;
-//         qMap[b] = tempB;
+        qMap.erase(a);
+        qMap.erase(b);
+        qMap[a] = tempVectorA;
+        qMap[b] = tempVectorB;
 
-//         updateIntersections(a);
-//         updateIntersections(b);
-//     }
+        updateIntersections(a);
+        updateIntersections(b);
+    }
 
-//     void _merge(Tnode * & node) {
-//         qArray temp;
+    void _merge(Tnode * & node) {
+        qArray temp;
 
-//         Tnode * a = node->left;
-//         Tnode * b = node->right;
+        Tnode * a = node->left;
+        Tnode * b = node->right;
 
-//         vector<Tnode *> leafs;
+        vector<Tnode *> leafs;
 
-//         if (a != NULL) {
-//             a->getLeafs(leafs);
-//         }
-//         if (b != NULL) {
-//             b->getLeafs(leafs);
-//         }
+        if (a != NULL) {
+            a->getLeafs(leafs);
+        }
+        if (b != NULL) {
+            b->getLeafs(leafs);
+        }
 
-//         for (size_t i = 0; i < leafs.size(); i+= 1) {
-//             Tnode * n = leafs[i];
-//             for (typename qArray::iterator it = qMap[n].begin(); it != qMap[n].end(); it++) {
-//                 temp.push_back((*it));
-//             }
-//             qMap.erase(n);
-//         }
+        for (size_t i = 0; i < leafs.size(); i+= 1) {
+            Tnode * n = leafs[i];
+            for (typename qArray::iterator it = qMap[n].begin(); it != qMap[n].end(); it++) {
+                temp.push_back((*it));
+            }
+            qMap.erase(n);
+        }
 
-//         if (temp.size() > 0) {
-//             qMap[node] = temp;
-//             updateIntersections(node);
-//         }
-//     }
+        if (temp.size() > 0) {
+            qMap[node] = temp;
+            updateIntersections(node);
+        }
+    }
 
-//     unsigned long long int checksum() {
-//         unsigned long long int val = 0;
-//         for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
-//             for (typename qArray::iterator jt = it->second.begin(); jt != it->second.end(); jt++) {
-//                 val += jt->second.checksum();
-//             }
-//         }
 
-//         return val;
-//     }
+    unsigned long long int checksum() {
+        unsigned long long int val = 0;
+        for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
+            for (typename qArray::iterator jt = it->second.begin(); jt != it->second.end(); jt++) {
+                Tinterval intersection = it->first->interval.intersection((*jt)->interval);
+                val += intersection.checksum();
+            }
+        }
 
-//     void printAllQueries() {
-//         for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
-//             cout << it->first->interval << endl;
-//             for (typename qArray::iterator jt = it->second.begin(); jt != it->second.end(); jt++) {
-//                 cout << "\t" << "( " << jt->first << " )" << jt->second << endl;
-//             }
-//         }
-//     }
+        return val;
+    }
 
-//     long numIndexedQueries () {
-//         long indexed = 0;
-//         for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
-//             indexed += it->second.size();
-//         }
+    void printAllQueries() {
+        for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
+            cout << it->first->interval << endl;
+            for (typename qArray::iterator jt = it->second.begin(); jt != it->second.end(); jt++) {
+                cout << "\t" << "( " << (*jt)->interval << " )" << endl;
+            }
+        }
+    }
 
-//         return indexed;
-//     }
+    long numIndexedQueries () {
+        long indexed = 0;
+        for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
+            indexed += it->second.size();
+        }
 
-//     void summary() {
-//         cout << "size: " << qMap.size() << endl;
+        return indexed;
+    }
 
-//         cout << "indexed      : " << this->numIndexedQueries() << endl;
-//         cout << "insert ops   : " << this->insertOps << endl;
-//         cout << "transfer ops : " << this->transferOps << endl;
-//         cout << "share ops    : " << this->shareOps << endl;
-//         cout << "merge ops    : " << this->mergeOps << endl;
+    void summary() {
+        cout << "size: " << qMap.size() << endl;
 
-//         cout << "insert time  : " << this->insertTime << endl;
-//         cout << "transfer time: " << this->transferTime << endl;
-//         cout << "share time   : " << this->shareTime << endl;
-//         cout << "merge time   : " << this->mergeTime << endl;
-//     }
+        cout << "indexed      : " << this->numIndexedQueries() << endl;
+        cout << "insert ops   : " << this->insertOps << endl;
+        cout << "transfer ops : " << this->transferOps << endl;
+        cout << "share ops    : " << this->shareOps << endl;
+        cout << "merge ops    : " << this->mergeOps << endl;
 
-//     void postInsert() {}
-// };
+        cout << "insert time  : " << this->insertTime << endl;
+        cout << "transfer time: " << this->transferTime << endl;
+        cout << "share time   : " << this->shareTime << endl;
+        cout << "merge time   : " << this->mergeTime << endl;
+    }
+
+    void postInsert() {}
+};
 
 #endif // QMAP_H

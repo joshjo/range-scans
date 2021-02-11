@@ -218,9 +218,6 @@ public:
                 }
             }
         }
-
-
-        // cout << endl;
     }
 
     Tnode ** search(Tinterval interval, Tnode * & parent = NULL) {

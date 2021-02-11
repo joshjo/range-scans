@@ -27,32 +27,32 @@ vector<Interval<T> > split_queries_in_intervals(Query<T> * query, T M) {
 }
 
 template <class T>
-class Node {
+class UINode {
 public:
-    typedef Node<T> Tnode;
+    typedef UINode<T> Tnode;
     typedef Interval<T> Tinterval;
 
-    Node * left;
-    Node * right;
-    Node * parent;
+    Tnode * left;
+    Tnode * right;
+    Tnode * parent;
     Tinterval interval;
 
     vector <Tinterval *> * lazy;
 
-    Node() {
+    UINode() {
         left = NULL;
         right = NULL;
         parent = NULL;
     }
 
-    Node(const Tnode & other) : Node() {
+    UINode(const Tnode & other) : UINode() {
         interval = Tinterval(other.interval);
         left = other.left;
         right = other.right;
         parent = other.parent;
     }
 
-    Node(Tinterval interval) : Node() {
+    UINode(Tinterval interval) : UINode() {
         this->interval = interval;
     }
 
@@ -135,7 +135,7 @@ template <class C>
 class Traits {
 public:
     typedef C T;
-    typedef Node<T> Tnode;
+    typedef UINode<T> Tnode;
     typedef Interval<T> Tinterval;
     typedef Query<T> Tquery;
 };
@@ -256,65 +256,6 @@ public:
             }
         }
     }
-
-    // void insert(Tinterval & interval) {
-    //     vector <Tinterval> Q;
-    //     get_intervals(interval, Q);
-    //     bool controlInserts = Q.size() > 1;
-    //     unordered_set<Tnode *> insertNodesTemp;
-    //     typename unordered_set<Tnode *>::iterator itm;
-
-    //     for (int i = 0; i < Q.size(); i += 1) {
-    //         Tnode * S = NULL; // Points to the parent of N.
-    //         Tinterval I(Q[i]);
-    //         search(I, Q, S);
-    //         if (S == NULL) {
-    //             root = new Tnode(I);
-    //             qMap->insert(root, &interval);
-    //         } else {
-    //             Tinterval J = I + S->interval;
-    //             if (S->interval.min <= J.min && J.max <= S->interval.max) {
-    //                 // Update new queries
-    //                 // Todo: Check this if under different parameters
-    //                 if (controlInserts) {
-    //                     itm = insertNodesTemp.find(S);
-    //                     if (itm == insertNodesTemp.end()) {
-    //                         qMap->insert(S, &interval);
-    //                         insertNodesTemp.insert(S);
-    //                     }
-    //                 } else {
-    //                     qMap->insert(S, &interval);
-    //                 }
-    //             } else {
-    //                 Tnode * T = new Tnode(*S);
-    //                 Tnode * N = new Tnode(I);
-    //                 S->interval = Tinterval(J);
-
-    //                 qMap->transfer(S, T);
-    //                 qMap->insert(N, &interval);
-
-    //                 if (controlInserts) {
-    //                     insertNodesTemp.insert(N);
-    //                 }
-
-    //                 if (T->interval < N->interval) {
-    //                     S->left = T;
-    //                     S->right = N;
-    //                 } else {
-    //                     S->left = N;
-    //                     S->right = T;
-    //                 }
-    //                 T->parent = S;
-    //                 N->parent = S;
-    //                 update(S);
-
-    //                 if (S->parent != NULL) {
-    //                     S->parent->updateLimits();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     void update(Tnode * & node) {
         if (!node->isLeaf() && (node->left->interval.max == node->right->interval.min || node->right->interval.intersects(node->left->interval))) {

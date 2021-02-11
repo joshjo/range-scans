@@ -16,8 +16,6 @@
 #include "numeric_comparator.h"
 #include "../interval-tree/src/newtree.h"
 
-#include "src/aitree.h"
-
 #include "result.h"
 #include "utils.h"
 
@@ -212,7 +210,7 @@ long additional(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * 
 }
 
 
-long lazyold(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
+long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
     long sum = 0;
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
@@ -285,86 +283,6 @@ long lazyold(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * que
     double totaltime = tree_total_time + db_exec_time + post_filtering_time;
     cout << "," << db_exec_time << "," << post_filtering_time << "," << totaltime;
     cout << "," << sum ;
-    cout << endl;
-
-    return sum;
-}
-
-
-long lazy(vector <Tinterval> & queries, rocksdb::DB* db, T leaf_size, T * queriesMeta) {
-    long sum = 0;
-    rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
-
-    QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
-    Tree <Traits <T> > * tree = new Tree <Traits <T> >(leaf_size, qMap);
-
-    double tree_total_time = 0;
-    double post_filtering_time = 0;
-    double db_exec_time = 0;
-    double search_time = 0;
-
-    auto st_1 = chrono::system_clock::now();
-    for (int i = 0; i < queries.size(); i += 1) {
-        tree->insert(queries[i]);
-    }
-    auto et_1 = chrono::system_clock::now();
-    chrono::duration<double> elapsed_seconds = et_1 - st_1;
-    tree_total_time = elapsed_seconds.count();
-
-    auto st_2 = std::chrono::system_clock::now();
-    for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
-
-        Tinterval leaf = itq->first->interval;
-        string start = to_string(leaf.min);
-        string limit = to_string(leaf.max);
-
-        auto st_3 = std::chrono::system_clock::now();
-        AITree <T> ait;
-        for (size_t i = 0; i < itq->second.size(); i++) {
-            Tinterval * query = itq->second[i];
-            ait.insert(*query);
-        }
-        auto et_3 = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_timer = et_3 - st_3;
-        post_filtering_time += elapsed_timer.count();
-
-        // cout << start << "; " << limit << " --> ";
-
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < leaf.max;
-            it->Next()
-        ) {
-            string skey = it->key().ToString();
-            T key = stoll(skey);
-            auto st_4 = std::chrono::system_clock::now();
-            vector<Tinterval *> intersections = ait.find(key);
-            auto et_4 = std::chrono::system_clock::now();
-            std::chrono::duration<double> elapsed_timer = et_4 - st_4;
-            search_time += elapsed_timer.count();
-            T value = stoll(it->value().ToString());
-
-            // cout << "intersections.size(): " << intersections.size() << endl;
-
-            // for (int i = 0; i < intersections.size(); i++){
-            //     cout << "(" << value << ")" << *(intersections[i]) << "  |  ";
-            // }
-        }
-
-        // cout << endl << endl;
-    }
-    auto et_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_timer = et_2 - st_2;
-    db_exec_time = elapsed_timer.count();
-
-    cout << "st     : " << search_time << endl;
-    cout << "pf     : " << post_filtering_time << endl;
-    cout << "pf + db: " << db_exec_time << endl;
-
-    delete it;
-    // printTimes(queriesMeta, tree, tree_total_time);
-    // double totaltime = tree_total_time + db_exec_time + post_filtering_time;
-    // cout << "," << db_exec_time << "," << post_filtering_time << "," << totaltime;
-    // cout << "," << sum ;
     cout << endl;
 
     return sum;
@@ -484,9 +402,7 @@ int main(int argc, char** argv) {
         leaf_size = queriesMeta[2];
     }
 
-    if (FLAGS_strategy == "lazyold") {
-        sum = lazyold(queries, db, leaf_size, queriesMeta);
-    } if (FLAGS_strategy == "lazy") {
+    if (FLAGS_strategy == "lazy") {
         sum = lazy(queries, db, leaf_size, queriesMeta);
     } else if (FLAGS_strategy == "original") {
         sum = original(queries, db);
