@@ -387,7 +387,7 @@ int main(int argc, char** argv) {
     NumericComparator cmp;
     options.comparator = &cmp;
 
-    rocksdb::Status status = rocksdb::DB::Open(options, "/tmp/tree", &db);
+    rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
     assert(status.ok());
 
     long sum = 0;

@@ -199,6 +199,12 @@ public:
         }
     }
 
+    void insert(vector<Tquery *> & vector) {
+        for (size_t i = 0; i < vector.size(); i++) {
+            this->insert(vector[i]);
+        }
+    }
+
     void insert(Tquery * query) {
         vector<Tinterval> Q = split_queries_in_intervals(query, M);
         bool controlInserts = Q.size() > 1;

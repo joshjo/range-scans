@@ -104,12 +104,14 @@ public:
         return s;
     }
 
-    virtual void print () {
+    virtual unordered_map < Tinterval *, vector<Tquery *> > plain() {
+        unordered_map <Tinterval *, vector<Tquery *> > qm;
+        return qm;
     }
 
-    virtual void postInsert() {
-        // Used for LeafTree
-    }
+    virtual void print () {}
+
+    virtual void postInsert() {}
 
     virtual void printAllQueries() {}
 
@@ -262,7 +264,7 @@ public:
         return indexed;
     }
 
-    virtual void print () {
+    void print () {
         for (typename qMapType::iterator itq = qMap.begin(); itq != qMap.end(); itq++) {
             cout << "node: " << itq->first->interval << endl;
 
@@ -271,6 +273,15 @@ public:
             }
             cout << endl;
         }
+    }
+
+    unordered_map<Tinterval *, qArray> plain() {
+        unordered_map<Tinterval *, vector<Tquery *> > qm;
+        for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
+            qm[&(it->first->interval)] = it->second;
+        }
+
+        return qm;
     }
 
     void summary() {

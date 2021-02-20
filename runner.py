@@ -29,6 +29,23 @@ def measure():
                 os.system(command)
 
 
+def duckdb():
+    iters = 5
+    queries = [
+        10,
+        100,
+        1000,
+        10000,
+        100000,
+        1000000,
+    ]
+
+    for num_queries in queries:
+        for i in range(iters):
+            command = f"./josue.out --iter={i} --queries={num_queries}"
+            os.system(command)
+
+
 def experiment1():
     print('iter,strategy,distribution,num queries,domain size,leaf size,range size,range size min, range size avg, range size max,avg node length,# leaf nodes,max tree depth,mapping queries nodes,mapping insert ops,mapping transfer ops,mapping share ops,mapping merge ops,mapping insert time,mapping transfer time,mapping share time,mapping merge time,tree building time,mapping total time,additional tree time,mapping + tree building time,exec time,post filtering time,total time')
 
@@ -135,5 +152,6 @@ def profiling():
 
 if __name__ == '__main__':
     # measure()
-    experiment1()
+    duckdb()
+    # experiment1()
     # profiling()
