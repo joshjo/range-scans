@@ -52,15 +52,13 @@ void executeRocksDBQueries(vector <Tquery *> & queryPlan) {
     NumericComparator cmp;
     options.comparator = &cmp;
 
+    T checksum = 0;
+
     rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
     assert(status.ok());
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
-    auto et1 = std::chrono::system_clock::now();
-    chrono::duration<double> e1 = et1 - st1;
-    cout << "t1: " << e1.count() << endl;
-
-    auto st2 = std::chrono::system_clock::now();
+    // auto st2 = std::chrono::system_clock::now();
     for(size_t i = 0; i < queryPlan.size(); i++) {
         Tinterval leaf = queryPlan[i]->interval;
         string start = to_string(leaf.min);
@@ -70,12 +68,15 @@ void executeRocksDBQueries(vector <Tquery *> & queryPlan) {
             it->Next()
         ) {
             // T key = stoll(it->key().ToString());
-            // T value = stoll(it->value().ToString());
+            T val = stoll(it->value().ToString());
+            checksum += val;
         }
     }
-    auto et2 = std::chrono::system_clock::now();
-    chrono::duration<double> e2 = et2 - st2;
-    cout << "t2: " << e2.count() << endl;
+    auto et1 = std::chrono::system_clock::now();
+    chrono::duration<double> e1 = et1 - st1;
+    // auto et2 = std::chrono::system_clock::now();
+    // chrono::duration<double> e2 = et2 - st2;
+    cout << FLAGS_queries << "," << e1.count() << "," << checksum << endl;
 
     delete db;
 }
@@ -92,12 +93,14 @@ void executeDucksDBQueries(vector <Tquery *> & queryPlan) {
         auto result = con.Query(buffer);
         for (size_t r = 0; r < result->collection.Count(); r++) {
             T val = result->GetValue<int64_t>(1, r);
+            checksum += val;
         }
     }
     auto et2 = std::chrono::system_clock::now();
     chrono::duration<double> e2 = et2 - st2;
-    cout << "t2: " << e2.count() << endl;
-    cout << "checksum: " << checksum << endl;
+    cout << FLAGS_queries << "," << e2.count() << "," << checksum << endl;
+    // cout << "t2: " << e2.count() << endl;
+    // cout << "checksum: " << checksum << endl;
 }
 
 void executeAndPostFilteringDucksDBQueries(QMapLazy <Traits <T>> * qMap) {
@@ -239,11 +242,11 @@ int main(int argc, char** argv) {
     }
 
     // executeDucksDBQueries(queries);
-    // executeRocksDBQueries(queries);
-    auto st1 = std::chrono::system_clock::now();
-    queryIndexing(queries, leafSize);
-    // postFiltering(newQueryPlan);
-    auto et1 = std::chrono::system_clock::now();
+    executeRocksDBQueries(queries);
+    // auto st1 = std::chrono::system_clock::now();
+    // queryIndexing(queries, leafSize);
+    // // postFiltering(newQueryPlan);
+    // auto et1 = std::chrono::system_clock::now();
     // chrono::duration<double> e1 = et1 - st1;
     // cout << "t1: " << e1.count() << endl;
     // auto result = con.Query("SELECT 42");

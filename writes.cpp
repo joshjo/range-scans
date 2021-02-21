@@ -32,36 +32,36 @@ void writeInRocks(T start, T limit) {
     delete db;
 }
 
-void writeInDuck(T start, T limit) {
-    // DuckDB db("josue.db");
-    DuckDB db("/dev/shm/josue.db");
-    int blockSize = 10000;
-    float numBlocksF = (float) (limit - start) / blockSize;
-    int numBlocks = ceil(numBlocksF);
-	Connection con(db);
-	con.Query("CREATE TABLE simple(key INTEGER PRIMARY KEY, value INTEGER)");
-    auto st2 = std::chrono::system_clock::now();
+// void writeInDuck(T start, T limit) {
+//     // DuckDB db("josue.db");
+//     DuckDB db("/dev/shm/josue.db");
+//     int blockSize = 10000;
+//     float numBlocksF = (float) (limit - start) / blockSize;
+//     int numBlocks = ceil(numBlocksF);
+// 	Connection con(db);
+// 	con.Query("CREATE TABLE simple(key INTEGER PRIMARY KEY, value INTEGER)");
+//     auto st2 = std::chrono::system_clock::now();
 
-    for (int x = 0; x < numBlocks; x++) {
-        string buffer = "INSERT INTO simple VALUES ";
-        T blockStart = start + (x * blockSize);
-        T blockLimit = blockStart + blockSize - 1;
-        blockLimit = blockLimit > limit ? limit : blockLimit;
-        for (T i = blockStart; i <= blockLimit; i += 1) {
-            buffer += "(" + to_string(i) + ", " + to_string(i * 2) + ")";
-            if (i < blockLimit) {
-                buffer += ", ";
-            }
-        }
-        con.Query(buffer);
-    }
-    auto et2 = std::chrono::system_clock::now();
-    chrono::duration<double> e2 = et2 - st2;
-    cout << "ti: " << e2.count() << endl;
+//     for (int x = 0; x < numBlocks; x++) {
+//         string buffer = "INSERT INTO simple VALUES ";
+//         T blockStart = start + (x * blockSize);
+//         T blockLimit = blockStart + blockSize - 1;
+//         blockLimit = blockLimit > limit ? limit : blockLimit;
+//         for (T i = blockStart; i <= blockLimit; i += 1) {
+//             buffer += "(" + to_string(i) + ", " + to_string(i * 2) + ")";
+//             if (i < blockLimit) {
+//                 buffer += ", ";
+//             }
+//         }
+//         con.Query(buffer);
+//     }
+//     auto et2 = std::chrono::system_clock::now();
+//     chrono::duration<double> e2 = et2 - st2;
+//     cout << "ti: " << e2.count() << endl;
 
-    auto result = con.Query("SELECT COUNT(*) FROM simple");
-    result->Print();
-}
+//     auto result = con.Query("SELECT COUNT(*) FROM simple");
+//     result->Print();
+// }
 
 
 int main(int argc, char** argv) {
@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
     sscanf(argv[1], "%lld", &start);
     sscanf(argv[2], "%lld", &limit);
 
-    writeInDuck(start, limit);
+    // writeInDuck(start, limit);
+    writeInRocks(start, limit);
 }
 
