@@ -30,14 +30,14 @@ def measure():
 
 
 def duckdb():
-    iters = 2
+    iters = 5
     queries = [
         10,
         100,
         1000,
         10000,
         100000,
-        # 1000000,
+        1000000,
     ]
 
     for num_queries in queries:
