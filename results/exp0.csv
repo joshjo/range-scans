@@ -1,4 +1,4 @@
-iter,queries,old rocks db,ram rocks db, duck db
+iter,queries,old rocks db,ram duck db, ram rocks db
 0,10,0.305076,0.123995,0.188719
 0,100,3.01068,1.295355,1.811990
 0,1000,29.5996,13.271900,18.016450
