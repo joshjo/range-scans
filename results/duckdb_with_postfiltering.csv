@@ -1,4 +1,4 @@
-iter,num queries,db time,pf time,checksum
+iter,db name,num queries,db time,pf time,checksum
 0,ducksdb,10,0.132505,0.0254238,880760200000
 1,ducksdb,10,0.132185,0.0251667,880760200000
 2,ducksdb,10,0.133482,0.0252664,880760200000
