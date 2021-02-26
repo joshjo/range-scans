@@ -104,8 +104,8 @@ public:
         return s;
     }
 
-    virtual unordered_map < Tinterval *, vector<Tquery *> > plain() {
-        unordered_map <Tinterval *, vector<Tquery *> > qm;
+    virtual unordered_map <Tquery *, vector<Tquery *> > plain() {
+        unordered_map <Tquery *, vector<Tquery *> > qm;
         return qm;
     }
 
@@ -275,10 +275,11 @@ public:
         }
     }
 
-    unordered_map<Tinterval *, qArray> plain() {
-        unordered_map<Tinterval *, vector<Tquery *> > qm;
+    unordered_map<Tquery *, qArray> plain() {
+        unordered_map<Tquery *, vector<Tquery *> > qm;
         for (typename qMapType::iterator it = qMap.begin(); it != qMap.end(); it++) {
-            qm[&(it->first->interval)] = it->second;
+            Tquery * query = new Tquery(it->first->interval);
+            qm[query] = it->second;
         }
 
         return qm;

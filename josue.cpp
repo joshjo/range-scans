@@ -21,13 +21,15 @@
 #include "src/aitree.h"
 #include "src/uitree.h"
 #include "src/tools.h"
+#include "src/result.h"
 #include "duckdb.hpp"
 
 typedef long long T;
 typedef Interval<T> Tinterval;
 typedef Query<T> Tquery;
 typedef vector <Tquery *> qArray;
-typedef unordered_map<Tinterval *, qArray> queryMap;
+typedef Result <T> Tresult;
+typedef unordered_map<Tquery *, qArray> queryMap;
 
 DEFINE_int64(queries, 100, "Number of queries");
 DEFINE_int64(key_domain_size, 1000000, "Key domain size");
@@ -45,40 +47,34 @@ DEFINE_bool(write_disk, false, "Write output to disk");
 
 using namespace std;
 
-void executeRocksDBQueries(vector <Tquery *> & queryPlan) {
-    auto st1 = std::chrono::system_clock::now();
+vector<Tresult *> executeRocksDBQueries(vector <Tquery *> & queryPlan) {
+    vector <Tresult *> table;
     rocksdb::DB* db;
     rocksdb::Options options;
     NumericComparator cmp;
     options.comparator = &cmp;
-
     T checksum = 0;
-
     rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
     assert(status.ok());
     rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
 
-    // auto st2 = std::chrono::system_clock::now();
     for(size_t i = 0; i < queryPlan.size(); i++) {
         Tinterval leaf = queryPlan[i]->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
+        Tresult * result = new Tresult(queryPlan[i]);
          for (it->Seek(start);
             it->Valid() && stoi(it->key().ToString()) < leaf.max;
             it->Next()
         ) {
-            // T key = stoll(it->key().ToString());
+            T key = stoll(it->key().ToString());
             T val = stoll(it->value().ToString());
-            checksum += val;
+            result->appendResult(key, val);
         }
+        table.push_back(result);
     }
-    auto et1 = std::chrono::system_clock::now();
-    chrono::duration<double> e1 = et1 - st1;
-    // auto et2 = std::chrono::system_clock::now();
-    // chrono::duration<double> e2 = et2 - st2;
-    cout << FLAGS_queries << "," << e1.count() << "," << checksum << endl;
-
     delete db;
+    return table;
 }
 
 void executeDucksDBQueries(vector <Tquery *> & queryPlan) {
@@ -223,47 +219,46 @@ void executeRocksDBQuery(Tinterval * interval) {
     delete db;
 }
 
+void postFiltering(vector<Tresult *> table, queryMap & qMap) {
+    T sum = 0;
+    for (size_t i = 0; i < table.size(); i++) {
+        Tquery * query = table[i]->query;
+        vector<pair<T, T>> collection = table[i]->collection;
+        qArray userQueries = qMap[query];
+        for(size_t j = 0; j < collection.size(); j++) {
+            qArray intersectedQueries;
+            T key = collection[j].first;
+            T val = collection[j].second;
+            for (size_t k = 0; k < userQueries.size(); k++) {
+                if (userQueries[k]->interval.intersects(key)) {
+                    intersectedQueries.push_back(userQueries[k]);
+                }
+            }
+            for (size_t k = 0; k < intersectedQueries.size(); k++) {
+                sum += val;
+            }
+        }
+    }
+    cout << "sum: " << sum << endl;
+}
+
 
 void queryIndexing(vector <Tquery *> queryPlan, T leafSize) {
     QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
     UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leafSize, qMap);
     uitree->insert(queryPlan);
-    queryMap newQueryPlan = qMap->plain();
-
-    executeAndPostFilteringRocksDBQueries(qMap);
-}
-
-void postFiltering(queryMap & newQueryPlan) {
-    auto st1 = std::chrono::system_clock::now();
-    rocksdb::DB* db;
-    rocksdb::Options options;
-    options.create_if_missing = true;
-    NumericComparator cmp;
-    options.comparator = &cmp;
-
-    rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
-    assert(status.ok());
-    rocksdb::Iterator* it = db->NewIterator(rocksdb::ReadOptions());
-
-    for (typename queryMap::iterator qit = newQueryPlan.begin(); qit != newQueryPlan.end(); qit++) {
-        Tinterval * interval = qit->first;
-        string start = to_string(interval->min);
-        string limit = to_string(interval->max);
-        for (it->Seek(start);
-            it->Valid() && stoi(it->key().ToString()) < interval->max;
-            it->Next()
-        ) {
-            // T key = stoll(it->key().ToString());
-            // T value = stoll(it->value().ToString());
-        }
+    queryMap qMapPlain = qMap->plain();
+    vector<Tquery *> newQueryPlan;
+    for(auto it = qMapPlain.begin(); it != qMapPlain.end(); it++) {
+        newQueryPlan.push_back(it->first);
     }
-    delete db;
+    vector<Tresult *> results = executeRocksDBQueries(newQueryPlan);
+    postFiltering(results, qMapPlain);
 }
 
 
 int main(int argc, char** argv) {
     srand (FLAGS_seed);
-
     gflags::SetUsageMessage("Main");
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -292,10 +287,17 @@ int main(int argc, char** argv) {
         leafSize = queriesMeta[2];
     }
 
-    // executeDucksDBQueries(queries);
+    queryIndexing(queries, leafSize);
+
+    // auto st2 = std::chrono::system_clock::now();
+    // vector <Tresult*> results = executeRocksDBQueries(queries);
+    // auto et2 = std::chrono::system_clock::now();
+    // chrono::duration<double> e2 = et2 - st2;
+    // cout << "et: " << e2.count() << endl;
+    // cout << results.size() << endl;
     // executeRocksDBQueries(queries);
     // auto st1 = std::chrono::system_clock::now();
-    queryIndexing(queries, leafSize);
+    // queryIndexing(queries, leafSize);
     // // postFiltering(newQueryPlan);
     // auto et1 = std::chrono::system_clock::now();
     // chrono::duration<double> e1 = et1 - st1;
