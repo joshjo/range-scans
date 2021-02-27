@@ -39,11 +39,17 @@ def duckdb():
         100000,
         1000000,
     ]
+    databases = [
+        'duckdb',
+        'rocksdb',
+    ]
 
-    for num_queries in queries:
-        for i in range(iters):
-            command = f"./josue.out --iter={i} --queries={num_queries}"
-            os.system(command)
+    print('iter,database,num queries,indexing,database,postfiltering')
+    for database in databases:
+        for num_queries in queries:
+            for i in range(iters):
+                command = f"./josue.out --iter={i} --database={database} --queries={num_queries}"
+                os.system(command)
 
 
 def experiment1():
