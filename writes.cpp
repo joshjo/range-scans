@@ -13,24 +13,24 @@ using namespace duckdb;
 typedef long long T;
 
 
-// void writeInRocks(T start, T limit) {
-//     rocksdb::DB* db;
-//     rocksdb::Options options;
-//     options.create_if_missing = true;
-//     NumericComparator cmp;
-//     options.comparator = &cmp;
+void writeInRocks(T start, T limit) {
+    rocksdb::DB* db;
+    rocksdb::Options options;
+    options.create_if_missing = true;
+    NumericComparator cmp;
+    options.comparator = &cmp;
 
-//     rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
-//     assert(status.ok());
+    rocksdb::Status status = rocksdb::DB::Open(options, "/dev/shm", &db);
+    assert(status.ok());
 
-//     for (T i = start; i <= limit; i += 1) {
-//         std::string key = std::to_string(i);
-//         std::string value = std::to_string(i * 2);
-//         db->Put(rocksdb::WriteOptions(), key, value);
-//     }
+    for (T i = start; i <= limit; i += 1) {
+        std::string key = std::to_string(i);
+        std::string value = std::to_string(i * 2);
+        db->Put(rocksdb::WriteOptions(), key, value);
+    }
 
-//     delete db;
-// }
+    delete db;
+}
 
 void writeInDuck(T start, T limit) {
     // DuckDB db("josue.db");
@@ -39,7 +39,8 @@ void writeInDuck(T start, T limit) {
     float numBlocksF = (float) (limit - start) / blockSize;
     int numBlocks = ceil(numBlocksF);
 	Connection con(db);
-	con.Query("CREATE TABLE simple(key INTEGER PRIMARY KEY, value INTEGER)");
+    con.Query("DROP TABLE IF EXISTS simple");
+	con.Query("CREATE TABLE simple(key INTEGER, value INTEGER)");
     auto st2 = std::chrono::system_clock::now();
 
     for (int x = 0; x < numBlocks; x++) {
@@ -61,6 +62,8 @@ void writeInDuck(T start, T limit) {
 
     auto result = con.Query("SELECT COUNT(*) FROM simple");
     result->Print();
+    auto resultDescribe = con.Query("DESCRIBE simple");
+    resultDescribe->Print();
 }
 
 
@@ -76,6 +79,6 @@ int main(int argc, char** argv) {
     sscanf(argv[2], "%lld", &limit);
 
     writeInDuck(start, limit);
-    // writeInRocks(start, limit);
+    writeInRocks(start, limit);
 }
 

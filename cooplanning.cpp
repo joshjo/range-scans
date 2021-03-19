@@ -22,6 +22,7 @@
 #include "src/uitree.h"
 #include "src/tools.h"
 #include "src/result.h"
+#include "src/defaultflags.h"
 #include "duckdb.hpp"
 
 typedef long long T;
@@ -31,24 +32,12 @@ typedef vector <Tquery *> qArray;
 typedef Result <T> Tresult;
 typedef unordered_map<Tquery *, qArray> queryMap;
 
-DEFINE_string(database, "rocksdb", "Database");
-DEFINE_int64(queries, 100, "Number of queries");
-DEFINE_int64(key_domain_size, 1000000, "Key domain size");
-DEFINE_string(leaf_size, "100000", "Leaf size");
-DEFINE_int64(range_size, 100000, "Range of queries");
-DEFINE_bool(random_range_size, false, "Use random range of queries");
-DEFINE_int64(min_range_size, 100000, "Min random range of queries");
-DEFINE_int64(max_range_size, 100000, "Max random range of queries");
-DEFINE_int64(percentage_point_queries, 0, "% of Pointe Queries");
-DEFINE_string(strategy, "raw", "Strategy");
-DEFINE_string(distribution, "normal", "Random Distribution");
-DEFINE_int64(iter, 0, "Define the iteration number");
-DEFINE_int64(seed, 100, "Random Seed");
-DEFINE_bool(write_disk, false, "Write output to disk");
-
 using namespace std;
 
 
+T leafSize = 0;
+
+CSVresults * csvResults;
 
 vector<Tresult *> executeRocksDBQueries(vector <Tquery *> & queryPlan) {
     vector <Tresult *> table;
@@ -104,57 +93,86 @@ vector<Tresult *> executeDuckDBQueries(vector <Tquery *> & queryPlan) {
 
 T postFiltering(vector<Tresult *> table, queryMap & qMap) {
     T sum = 0;
+    double tt1 = 0;
+    double tt2 = 0;
+    double tt3 = 0;
+
+    auto st1 = std::chrono::system_clock::now();
     for (size_t i = 0; i < table.size(); i++) {
         Tquery * query = table[i]->query;
         vector<pair<T, T>> collection = table[i]->collection;
         qArray userQueries = qMap[query];
+        auto st2 = std::chrono::system_clock::now();
         for(size_t j = 0; j < collection.size(); j++) {
             qArray intersectedQueries;
             T key = collection[j].first;
             T val = collection[j].second;
+            auto st3 = std::chrono::system_clock::now();
             for (size_t k = 0; k < userQueries.size(); k++) {
                 if (userQueries[k]->interval.intersects(key)) {
                     intersectedQueries.push_back(userQueries[k]);
                 }
             }
+            auto et3 = std::chrono::system_clock::now();
             for (size_t k = 0; k < intersectedQueries.size(); k++) {
                 sum += val;
             }
+            chrono::duration<double> e3 = et3 - st3;
+            tt3 += e3.count();
         }
+        auto et2 = std::chrono::system_clock::now();
+        chrono::duration<double> e2 = et2 - st2;
+        tt2 += e2.count();
     }
+    auto et1 = std::chrono::system_clock::now();
+    chrono::duration<double> e1 = et1 - st1;
     return sum;
 }
 
 
-void queryCoplanning(vector <Tquery *> queryPlan, T leafSize) {
-    // indexing
+queryMap queryIndexing(vector <Tquery *> queryPlan){
     auto sti = std::chrono::system_clock::now();
     QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
     UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leafSize, qMap);
     uitree->insert(queryPlan);
-    queryMap qMapPlain = qMap->plain();
+    auto eti = std::chrono::system_clock::now();
+    chrono::duration<double> ei = eti - sti;
+    csvResults->ii_time = ei.count();
+    csvResults->setUIValues(uitree->getLeafsData());
+    return qMap->plain();
+}
+
+
+void queryCoplanning(vector <Tquery *> queryPlan) {
+    // indexing
+    queryMap qMapPlain = queryIndexing(queryPlan);
     vector<Tquery *> newQueryPlan;
     for(auto it = qMapPlain.begin(); it != qMapPlain.end(); it++) {
         newQueryPlan.push_back(it->first);
     }
-    auto eti = std::chrono::system_clock::now();
-    chrono::duration<double> ei = eti - sti;
+    // end indexing
     // Execute new query plan
-    auto std = std::chrono::system_clock::now();
-    vector<Tresult *> results;
-    if (FLAGS_database == "rocksdb") {
-        results = executeRocksDBQueries(newQueryPlan);
-    } else if (FLAGS_database == "duckdb") {
-        results = executeDuckDBQueries(newQueryPlan);
+    if (FLAGS_exec_database) {
+        auto std = std::chrono::system_clock::now();
+        vector<Tresult *> results;
+        if (FLAGS_database == "rocksdb") {
+            results = executeRocksDBQueries(newQueryPlan);
+        } else if (FLAGS_database == "duckdb") {
+            results = executeDuckDBQueries(newQueryPlan);
+        }
+        auto etd = std::chrono::system_clock::now();
+        chrono::duration<double> ed = etd - std;
+        csvResults->db_time = ed.count();
+        if (FLAGS_exec_postfiltering) {
+            // Postfiltering
+            auto stp = std::chrono::system_clock::now();
+            T checksum = postFiltering(results, qMapPlain);
+            auto etp = std::chrono::system_clock::now();
+            chrono::duration<double> ep = etp - stp;
+            csvResults->pf_time = ep.count();
+        }
     }
-    auto etd = std::chrono::system_clock::now();
-    chrono::duration<double> ed = etd - std;
-    // Postfiltering
-    auto stp = std::chrono::system_clock::now();
-    T checksum = postFiltering(results, qMapPlain);
-    auto etp = std::chrono::system_clock::now();
-    chrono::duration<double> ep = etp - stp;
-    cout << FLAGS_iter << "," << FLAGS_database << "," << FLAGS_queries << "," << ei.count() << "," << ed.count() << "," << ep.count() << endl;
+
 }
 
 
@@ -165,46 +183,26 @@ int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     vector <Tquery *> queries;
 
-    queries = create_random_queries(
-        FLAGS_queries,
-        FLAGS_key_domain_size,
-        FLAGS_range_size,
-        FLAGS_random_range_size,
-        FLAGS_min_range_size,
-        FLAGS_max_range_size,
-        FLAGS_percentage_point_queries,
-        FLAGS_seed
-    );
-
-    T leafSize = 0;
+    queries = create_random_queries();
+    csvResults = new CSVresults();
 
     T * queriesMeta = getQueriesMetaData(queries);
 
-    long long int checks = getFastQueriesChecksum(queries);
+
+    if (FLAGS_exec_checksum) {
+        long long int checks = getFastQueriesChecksum(queries);
+        csvResults->checksum = checks;
+    }
 
     if (isNumber(FLAGS_leaf_size)) {
         leafSize = atol(FLAGS_leaf_size.c_str());
     } else if (FLAGS_leaf_size == "max_range") {
         leafSize = queriesMeta[2];
     }
+    queryCoplanning(queries);
 
-    queryCoplanning(queries, leafSize);
-
-    // auto st2 = std::chrono::system_clock::now();
-    // vector <Tresult*> results = executeRocksDBQueries(queries);
-    // auto et2 = std::chrono::system_clock::now();
-    // chrono::duration<double> e2 = et2 - st2;
-    // cout << "et: " << e2.count() << endl;
-    // cout << results.size() << endl;
-    // executeRocksDBQueries(queries);
-    // auto st1 = std::chrono::system_clock::now();
-    // queryIndexing(queries, leafSize);
-    // // postFiltering(newQueryPlan);
-    // auto et1 = std::chrono::system_clock::now();
-    // chrono::duration<double> e1 = et1 - st1;
-    // cout << "t1: " << e1.count() << endl;
-    // auto result = con.Query("SELECT 42");
-    // result->Print();
+    csvResults->setQQValues(queriesMeta);
+    csvResults->printValues();
 
     gflags::ShutDownCommandLineFlags();
 
