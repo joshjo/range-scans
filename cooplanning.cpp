@@ -54,16 +54,16 @@ vector<Tresult *> executeRocksDBQueries(vector <Tquery *> & queryPlan) {
         Tinterval leaf = queryPlan[i]->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        Tresult * result = new Tresult(queryPlan[i]);
+        // Tresult * result = new Tresult(queryPlan[i]);
          for (it->Seek(start);
             it->Valid() && stoi(it->key().ToString()) < leaf.max;
             it->Next()
         ) {
             T key = stoll(it->key().ToString());
             T val = stoll(it->value().ToString());
-            result->appendResult(key, val);
+            // result->appendResult(key, val);
         }
-        table.push_back(result);
+        // table.push_back(result);
     }
     delete db;
     return table;
@@ -76,16 +76,16 @@ vector<Tresult *> executeDuckDBQueries(vector <Tquery *> & queryPlan) {
     char buffer[100];
     T checksum = 0;
     for(size_t i = 0; i < queryPlan.size(); i++) {
-        Tresult * row = new Tresult(queryPlan[i]);
+        // Tresult * row = new Tresult(queryPlan[i]);
         Tinterval leaf = queryPlan[i]->interval;
         sprintf(buffer, "SELECT * FROM simple WHERE key >= %lld AND key < %lld", leaf.min, leaf.max);
         auto result = con.Query(buffer);
         for (size_t r = 0; r < result->collection.Count(); r++) {
             T val = result->GetValue<int64_t>(1, r);
             T key = result->GetValue<int64_t>(0, r);
-            row->appendResult(key, val);
+            // row->appendResult(key, val);
         }
-        table.push_back(row);
+        // table.push_back(row);
     }
 
     return table;
@@ -143,7 +143,7 @@ queryMap queryIndexing(vector <Tquery *> queryPlan){
 }
 
 
-void queryCoplanning(vector <Tquery *> queryPlan) {
+void queryCoplanning(vector <Tquery *>& queryPlan) {
     // indexing
     queryMap qMapPlain = queryIndexing(queryPlan);
     vector<Tquery *> newQueryPlan;
@@ -172,7 +172,21 @@ void queryCoplanning(vector <Tquery *> queryPlan) {
             csvResults->pf_time = ep.count();
         }
     }
+}
 
+void qat(vector <Tquery *>& queryPlan) {
+    auto std = std::chrono::system_clock::now();
+    vector<Tresult *> results;
+    // cout << "querying ..." << endl;
+    if (FLAGS_database == "rocksdb") {
+        executeRocksDBQueries(queryPlan);
+    } else if (FLAGS_database == "duckdb") {
+        executeDuckDBQueries(queryPlan);
+    }
+    auto etd = std::chrono::system_clock::now();
+    chrono::duration<double> ed = etd - std;
+
+    cout << FLAGS_iter << "," << FLAGS_queries << "," << FLAGS_database << "," << ed.count() << endl;
 }
 
 
@@ -199,10 +213,12 @@ int main(int argc, char** argv) {
     } else if (FLAGS_leaf_size == "max_range") {
         leafSize = queriesMeta[2];
     }
-    queryCoplanning(queries);
 
-    csvResults->setQQValues(queriesMeta);
-    csvResults->printValues();
+    // queryCoplanning(queries);
+    // csvResults->setQQValues(queriesMeta);
+    // csvResults->printValues();
+
+    qat(queries);
 
     gflags::ShutDownCommandLineFlags();
 
