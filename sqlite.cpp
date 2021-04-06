@@ -10,27 +10,13 @@
 #include "src/aitree.h"
 #include "src/uitree.h"
 #include "src/tools.h"
+#include "src/sqlite3pp/headeronly_src/sqlite3pp.h"
 
 using namespace std;
 
 typedef long long T;
 typedef Interval<T> Tinterval;
 typedef Query<T> Tquery;
-
-DEFINE_int64(queries, 100, "Number of queries");
-DEFINE_int64(key_domain_size, 1000000, "Key domain size");
-DEFINE_string(leaf_size, "100000", "Leaf size");
-DEFINE_int64(range_size, 100000, "Range of queries");
-DEFINE_bool(random_range_size, false, "Use random range of queries");
-DEFINE_int64(min_range_size, 100000, "Min random range of queries");
-DEFINE_int64(max_range_size, 100000, "Max random range of queries");
-DEFINE_int64(percentage_point_queries, 0, "% of Pointe Queries");
-DEFINE_string(strategy, "raw", "Strategy");
-DEFINE_string(distribution, "normal", "Random Distribution");
-DEFINE_int64(iter, 0, "Define the iteration number");
-DEFINE_int64(seed, 100, "Random Seed");
-DEFINE_bool(write_disk, false, "Write output to disk");
-
 
 
 int noopCallback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -45,12 +31,12 @@ int callbackSelect(void *NotUsed, int argc, char **argv, char **azColName){
 
     // cout << "# rows " << argc << endl;
 
-    for(int i = 0; i < argc; i++) {
+    // for(int i = 0; i < argc; i++) {
 
-        // Show column name, value, and newline
-        cout << azColName[i] << ": " << argv[i] << endl;
+    //     // Show column name, value, and newline
+    //     cout << azColName[i] << ": " << argv[i] << endl;
 
-    }
+    // }
 
     // Insert a newline
     // cout << endl;
@@ -59,60 +45,41 @@ int callbackSelect(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-long lazy(sqlite3 * db, vector <Tquery *> & queries, T leaf_size) {
-    long sum = 0;
-
-    QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
-    UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leaf_size, qMap);
-
-    double uitree_time = 0;
-    double post_filtering_time = 0;
-    double db_and_postfiltering = 0;
-    double db_exec_time = 0;
-    double pf_tree_building = 0;
-    double pf_tree_find = 0;
-    double query_assignment = 0;
-
-    auto st_1 = chrono::system_clock::now();
-    for (int i = 0; i < queries.size(); i += 1) {
-        uitree->insert(queries[i]);
-    }
-    auto et_1 = chrono::system_clock::now();
-    chrono::duration<double> e1 = et_1 - st_1;
-    uitree_time = e1.count();
+long qat3(vector <Tquery *> & queryPlan) {
+    sqlite3pp::database db("/dev/shm/sqlite_simple.db");
 
     char buffer[100];
+    T checksum = 0;
+    for(size_t i = 0; i < queryPlan.size(); i++) {
+        Tinterval leaf = queryPlan[i]->interval;
+        sprintf(buffer, "SELECT * FROM simple WHERE key >= %lld AND key < %lld", leaf.min, leaf.max);
+        sqlite3pp::query qry(db, buffer);
+        T key, value;
 
-    auto st_2 = std::chrono::system_clock::now();
+        for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
+            std::tie(key, value) = (*i).get_columns<T, T>(0, 1);
+        }
+    }
+
+    return 0;
+}
+
+long qat(sqlite3 * db, vector <Tquery *> & queryPlan) {
+
+    char buffer[100];
     char *zErrMsg = 0;
-    for (auto itq = qMap->qMap.begin(); itq != qMap->qMap.end(); itq++) {
 
-        auto st_3 = std::chrono::system_clock::now();
-        CITree <T> qtree;
-        qtree.insert(itq->second);
-        auto et_3 = chrono::system_clock::now();
-        chrono::duration<double> e3 = et_3 - st_3;
-        pf_tree_building += e3.count();
-
-        // cout << qtree.graphviz() << endl << endl;
-
-        Tinterval leaf = itq->first->interval;
-
-        sprintf(buffer, "SELECT * FROM 'SIMPLE' WHERE KEY >= %lld AND KEY < %lld;", leaf.min, leaf.max);
+    for(size_t i = 0; i < queryPlan.size(); i += 1) {
+        sprintf(
+            buffer,
+            "SELECT * FROM simple WHERE KEY >= %lld AND KEY < %lld;",
+            queryPlan[i]->interval.min,
+            queryPlan[i]->interval.max
+        );
         int rc = sqlite3_exec(db, buffer, noopCallback, 0, &zErrMsg);
     }
-    auto et_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> e2 = et_2 - st_2;
-    db_and_postfiltering = e2.count();
 
-    // post_filtering_time = pf_tree_building + pf_tree_find + query_assignment;
-    // db_exec_time = db_and_postfiltering - post_filtering_time;
-    // cout << post_filtering_time << "," << pf_tree_building << "," << pf_tree_find << ",";
-    // cout << query_assignment << "," << db_exec_time << ",";
-    // cout << sum;
-    // cout << endl;
-
-    return sum;
+    return 0;
 }
 
 int main(int argc, char * argv[]) {
@@ -123,19 +90,11 @@ int main(int argc, char * argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     vector <Tquery *> queries;
 
-    queries = create_random_queries(
-        FLAGS_queries,
-        FLAGS_key_domain_size,
-        FLAGS_range_size,
-        FLAGS_random_range_size,
-        FLAGS_min_range_size,
-        FLAGS_max_range_size,
-        FLAGS_percentage_point_queries,
-        FLAGS_seed
-    );
+    queries = create_random_queries();
 
     sqlite3 * db;
-    int rc = sqlite3_open(":memory:", &db);
+    // int rc = sqlite3_open(":memory:", &db);
+    int rc = sqlite3_open("/dev/shm/sqlite_test.db", &db);
     string sql;
     char *zErrMsg = 0;
     if(rc) {
@@ -145,7 +104,7 @@ int main(int argc, char * argv[]) {
         fprintf(stderr, "Opened database successfully\n");
     }
 
-    sql = "CREATE TABLE SIMPLE ("  \
+    sql = "CREATE TABLE simple ("  \
             "KEY UNSIGNED INT PRIMARY KEY NOT NULL," \
             "VALUE UNSIGNED INT NOT NULL);";
 
@@ -159,17 +118,17 @@ int main(int argc, char * argv[]) {
     //     fprintf(stderr, "Table created successfully\n");
     // }
 
-    char buffer[100];
+    // char buffer[100];
 
-    for (int i = 1; i <= 1000000; i++) {
-        // Save SQL insert data
-        // string key = to_string(i);
-        // string value = to_string(i * 2);
-        // sql = ;
-        sprintf(buffer, "INSERT INTO SIMPLE ('KEY', 'VALUE') VALUES ('%d', '%d');", i, i * 2);
-        rc = sqlite3_exec(db, buffer, noopCallback, 0, &zErrMsg);
-        // format("{} {}!", "Hello", "world", "something");
-    }
+    // for (int i = 1; i <= 1000000; i++) {
+    //     // Save SQL insert data
+    //     // string key = to_string(i);
+    //     // string value = to_string(i * 2);
+    //     // sql = ;
+    //     sprintf(buffer, "INSERT INTO simple ('KEY', 'VALUE') VALUES ('%d', '%d');", i, i * 2);
+    //     rc = sqlite3_exec(db, buffer, noopCallback, 0, &zErrMsg);
+    //     // format("{} {}!", "Hello", "world", "something");
+    // }
 
     // // Run the SQL (convert the string to a C-String with c_str() )
     // rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
@@ -197,7 +156,8 @@ int main(int argc, char * argv[]) {
     // auto et_1 = chrono::system_clock::now();
 
     auto st2 = chrono::system_clock::now();
-    lazy(db, queries, 100000);
+    // qat(db, queries);
+    qat3(queries);
     auto et2 = chrono::system_clock::now();
 
     chrono::duration<double> es2 = et2 - st2;

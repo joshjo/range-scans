@@ -1,11 +1,12 @@
 CXX := g++
 RM := rm -f
 CXXFLAGS := -std=c++11 -O3 -g
-LDFLAGS := -I/home/josue/Devel/MCS/dbs/duckdb/src/include -L/home/josue/Devel/MCS/dbs/duckdb/build/release/src -lduckdb -lrocksdb -lpthread -lrt -lsnappy -lgflags -lz -lbz2 -llz4 -lzstd -ldl
+LDFLAGS := -I/home/josue/Devel/MCS/dbs/duckdb/src/include -L/home/josue/Devel/MCS/dbs/duckdb/build/release/src -lsqlite3 -lduckdb -lrocksdb -lpthread -lrt -lsnappy -lgflags -lz -lbz2 -llz4 -lzstd -ldl
 
 COOPLANNING = cooplanning
 CSVHEADER = csvheader
 WRITES = writes
+SQLITE = sqlite
 
 all: $(COOPLANNING) $(CSVHEADER) $(WRITES)
 
@@ -17,6 +18,9 @@ $(CSVHEADER): $(CSVHEADER).cpp
 
 $(WRITES): $(WRITES).cpp
 	$(CXX) $(WRITES).cpp $(CXXFLAGS) $(LDFLAGS) -o $(WRITES).out
+
+$(SQLITE): $(SQLITE).cpp
+	$(CXX) $(SQLITE).cpp $(CXXFLAGS) $(LDFLAGS) -o $(SQLITE).out
 
 clean:
 	$(RM) count *.out *~

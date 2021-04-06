@@ -57,17 +57,17 @@ def experiment0():
     print('iter,queries,database,time (s)')
     iters = 5
     queries = [
-        100000,
-        10000,
-        1000,
-        100,
         10,
+        100,
+        1000,
+        10000,
+        100000,
     ]
     # command = f"./cooplanning.out --iter=0 --database=duckdb --queries=1000000"
     # os.system(command)
     for num_queries in queries:
         for i in range(iters):
-            command = f"./cooplanning.out --iter={i} --database=duckdb --queries={num_queries}"
+            command = f"./cooplanning.out --iter={i} --database=sqlite3 --queries={num_queries}"
             os.system(command)
 
 

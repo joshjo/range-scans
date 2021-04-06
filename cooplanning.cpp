@@ -24,6 +24,7 @@
 #include "src/result.h"
 #include "src/defaultflags.h"
 #include "duckdb.hpp"
+#include "src/sqlite3pp/headeronly_src/sqlite3pp.h"
 
 typedef long long T;
 typedef Interval<T> Tinterval;
@@ -69,9 +70,31 @@ vector<Tresult *> executeRocksDBQueries(vector <Tquery *> & queryPlan) {
     return table;
 }
 
+vector<Tresult *> executeSQLite3Queries(vector <Tquery *> & queryPlan) {
+    vector <Tresult *> table;
+    // sqlite3pp::database db("sqlite_simple.db");
+    // sqlite3pp::database db("/dev/shm/sqlite_test.db");
+    sqlite3pp::database db("/dev/shm/sqlite3_simple.db");
+
+    char buffer[100];
+    T checksum = 0;
+    for(size_t i = 0; i < queryPlan.size(); i++) {
+        Tinterval leaf = queryPlan[i]->interval;
+        sprintf(buffer, "SELECT * FROM simple WHERE key >= %lld AND key < %lld", leaf.min, leaf.max);
+        sqlite3pp::query qry(db, buffer);
+        T key, value;
+
+        for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
+            std::tie(key, value) = (*i).get_columns<T, T>(0, 1);
+        }
+    }
+
+    return table;
+}
+
 vector<Tresult *> executeDuckDBQueries(vector <Tquery *> & queryPlan) {
     vector <Tresult *> table;
-    duckdb::DuckDB db("/dev/shm/josue.db");
+    duckdb::DuckDB db("/dev/shm/duck_simple.db");
 	duckdb::Connection con(db);
     char buffer[100];
     T checksum = 0;
@@ -182,6 +205,8 @@ void qat(vector <Tquery *>& queryPlan) {
         executeRocksDBQueries(queryPlan);
     } else if (FLAGS_database == "duckdb") {
         executeDuckDBQueries(queryPlan);
+    } else if (FLAGS_database == "sqlite3") {
+        executeSQLite3Queries(queryPlan);
     }
     auto etd = std::chrono::system_clock::now();
     chrono::duration<double> ed = etd - std;
