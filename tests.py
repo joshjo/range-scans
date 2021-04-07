@@ -70,7 +70,7 @@ def avg_case():
 
 
 def experiment_1():
-    databases = ['rocksdb']
+    databases = ['sqlite3']
     distributions = ['normal']
     domain = 1000000
     strategies = ['lazy']
@@ -79,6 +79,7 @@ def experiment_1():
     range_sizes = [100000]
     iters = universal_iters
     percentage_point_queries = [0]
+    bool_args=[]
 
     runner(
         databases,
@@ -134,6 +135,6 @@ def experiment_6():
     )
 
 if __name__ == '__main__':
-    avg_case()
-    # experiment_1()
+    # avg_case()
+    experiment_1()
     # experiment_6()

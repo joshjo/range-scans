@@ -239,11 +239,11 @@ int main(int argc, char** argv) {
         leafSize = queriesMeta[2];
     }
 
-    // queryCoplanning(queries);
-    // csvResults->setQQValues(queriesMeta);
-    // csvResults->printValues();
+    queryCoplanning(queries);
+    csvResults->setQQValues(queriesMeta);
+    csvResults->printValues();
 
-    qat(queries);
+    // qat(queries);
 
     gflags::ShutDownCommandLineFlags();
 
