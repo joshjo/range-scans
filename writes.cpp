@@ -3,7 +3,7 @@
 #include <cmath>
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
-#include "src/sqlite3pp/headeronly_src/sqlite3pp.h"
+#include "sqlite3pp.h"
 #include "duckdb.hpp"
 #include "numeric_comparator.h"
 
@@ -180,8 +180,8 @@ int main(int argc, char** argv) {
     sscanf(argv[1], "%lld", &start);
     sscanf(argv[2], "%lld", &limit);
 
-    writhInSQLite3(start, limit);
-    // writeInDuck(start, limit);
+    // writhInSQLite3(start, limit);
+    writeInDuck(start, limit);
     // writeInRocks(start, limit);
 }
 

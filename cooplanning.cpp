@@ -24,7 +24,7 @@
 #include "src/result.h"
 #include "src/defaultflags.h"
 #include "duckdb.hpp"
-#include "src/sqlite3pp/headeronly_src/sqlite3pp.h"
+#include "sqlite3pp.h"
 
 typedef long long T;
 typedef Interval<T> Tinterval;
