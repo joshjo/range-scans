@@ -180,8 +180,8 @@ int main(int argc, char** argv) {
     sscanf(argv[1], "%lld", &start);
     sscanf(argv[2], "%lld", &limit);
 
-    writhInSQLite3(start, limit);
-    // writeInDuck(start, limit);
-    // writeInRocks(start, limit);
+    // writhInSQLite3(start, limit);
+    writeInDuck(start, limit);
+    writeInRocks(start, limit);
 }
 

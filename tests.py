@@ -70,7 +70,7 @@ def avg_case():
 
 
 def experiment_1():
-    databases = ['sqlite']
+    databases = ['rocksdb', 'duckdb']
     distributions = ['normal']
     domain = 1000000
     strategies = ['lazy']
@@ -80,7 +80,7 @@ def experiment_1():
     range_sizes = [100000]
     iters = universal_iters
     percentage_point_queries = [0]
-    bool_args=[]
+    bool_args=['--exec_postfiltering=false']
 
     runner(
         databases,
