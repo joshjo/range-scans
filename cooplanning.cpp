@@ -55,25 +55,23 @@ vector<Tresult *> executeRocksDBQueries(vector <Tquery *> & queryPlan) {
         Tinterval leaf = queryPlan[i]->interval;
         string start = to_string(leaf.min);
         string limit = to_string(leaf.max);
-        // Tresult * result = new Tresult(queryPlan[i]);
+        Tresult * result = new Tresult(queryPlan[i]);
          for (it->Seek(start);
             it->Valid() && stoi(it->key().ToString()) < leaf.max;
             it->Next()
         ) {
             T key = stoll(it->key().ToString());
             T val = stoll(it->value().ToString());
-            // result->appendResult(key, val);
+            result->appendResult(key, val);
         }
-        // table.push_back(result);
+        table.push_back(result);
     }
     delete db;
     return table;
 }
 
-vector<Tresult *> executeSQLite3Queries(vector <Tquery *> & queryPlan) {
+vector<Tresult *> executeSQLiteQueries(vector <Tquery *> & queryPlan) {
     vector <Tresult *> table;
-    // sqlite3pp::database db("sqlite_simple.db");
-    // sqlite3pp::database db("/dev/shm/sqlite_test.db");
     sqlite3pp::database db("/dev/shm/sqlite3_simple.db");
 
     char buffer[100];
@@ -82,13 +80,15 @@ vector<Tresult *> executeSQLite3Queries(vector <Tquery *> & queryPlan) {
         Tinterval leaf = queryPlan[i]->interval;
         sprintf(buffer, "SELECT * FROM simple WHERE key >= %lld AND key < %lld", leaf.min, leaf.max);
         sqlite3pp::query qry(db, buffer);
-        T key, value;
+        T key, val;
+        Tresult * result = new Tresult(queryPlan[i]);
 
         for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
-            std::tie(key, value) = (*i).get_columns<T, T>(0, 1);
+            std::tie(key, val) = (*i).get_columns<T, T>(0, 1);
+            result->appendResult(key, val);
         }
+        table.push_back(result);
     }
-
     return table;
 }
 
@@ -182,6 +182,8 @@ void queryCoplanning(vector <Tquery *>& queryPlan) {
             results = executeRocksDBQueries(newQueryPlan);
         } else if (FLAGS_database == "duckdb") {
             results = executeDuckDBQueries(newQueryPlan);
+        } else if (FLAGS_database == "sqlite") {
+            results = executeSQLiteQueries(newQueryPlan);
         }
         auto etd = std::chrono::system_clock::now();
         chrono::duration<double> ed = etd - std;
@@ -205,8 +207,8 @@ void qat(vector <Tquery *>& queryPlan) {
         executeRocksDBQueries(queryPlan);
     } else if (FLAGS_database == "duckdb") {
         executeDuckDBQueries(queryPlan);
-    } else if (FLAGS_database == "sqlite3") {
-        executeSQLite3Queries(queryPlan);
+    } else if (FLAGS_database == "sqlite") {
+        executeSQLiteQueries(queryPlan);
     }
     auto etd = std::chrono::system_clock::now();
     chrono::duration<double> ed = etd - std;

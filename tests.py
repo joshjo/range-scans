@@ -70,11 +70,12 @@ def avg_case():
 
 
 def experiment_1():
-    databases = ['sqlite3']
+    databases = ['sqlite']
     distributions = ['normal']
     domain = 1000000
     strategies = ['lazy']
     queries = [10, 100, 1000, 10000, 100000, 1000000]
+    # queries = [10000]
     leaf_sizes = [100000]
     range_sizes = [100000]
     iters = universal_iters
