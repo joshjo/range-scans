@@ -47,6 +47,7 @@ struct CSVresults {
     F pf_time;
     F db_time;
     F ii_time;
+    F qm_time;
 
     X checksum;
 
@@ -113,8 +114,16 @@ struct CSVresults {
         std::cout << "indexing time (s)";
     }
 
+    void printQMHeader() {
+        std::cout << "query mapping time (s)";
+    }
+
     void printIIValues() {
         std::cout << ii_time;
+    }
+
+    void printQMValues() {
+        std::cout << qm_time;
     }
 
     void printDBHeader() {
@@ -141,6 +150,8 @@ struct CSVresults {
         printUIHeader();
         std::cout << ",";
         printIIHeader();
+        std::cout << ",";
+        printQMHeader();
         if (FLAGS_exec_database) {
             std::cout << ",";
             printDBHeader();
@@ -166,6 +177,8 @@ struct CSVresults {
         printUIValues();
         std::cout << ",";
         printIIValues();
+        std::cout << ",";
+        printQMValues();
 
         if (FLAGS_exec_database) {
             std::cout << ",";

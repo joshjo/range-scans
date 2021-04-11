@@ -53,7 +53,7 @@ def avg_case():
     range_sizes = [100]
     iters = 2
     bool_args = ['--exec_database=false']
-    percentage_point_queries = [0]
+    percentage_point_queries = []
 
     runner(
         databases,
@@ -70,17 +70,17 @@ def avg_case():
 
 
 def experiment_1():
-    databases = ['rocksdb', 'duckdb']
+    databases = ['duckdb']
     distributions = ['normal']
     domain = 1000000
-    strategies = ['lazy']
+    strategies = ['lazy', 'additional']
     queries = [10, 100, 1000, 10000, 100000, 1000000]
     # queries = [10000]
     leaf_sizes = [100000]
     range_sizes = [100000]
     iters = universal_iters
     percentage_point_queries = [0]
-    bool_args=['--exec_postfiltering=false']
+    bool_args=['--exec_database=false']
 
     runner(
         databases,

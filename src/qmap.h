@@ -4,6 +4,7 @@
 #include "includes.h"
 #include "interval.h"
 #include "query.h"
+#include "ltree.h"
 
 template <class Tr>
 class QMapBase {
@@ -23,6 +24,7 @@ public:
     double mergeTime;
     double transferTime;
     double shareTime;
+    double postInsertTime;
 
     QMapBase() {
 
@@ -37,6 +39,7 @@ public:
         mergeTime = 0;
         transferTime = 0;
         shareTime = 0;
+        postInsertTime = 0;
     }
 
     virtual void _insert(Tnode * & node, Tquery * query) {}
@@ -46,6 +49,14 @@ public:
     virtual void _share(Tnode * & a, Tnode * & b) {}
 
     virtual void _merge(Tnode * & node) {}
+
+
+    virtual void _postInsert(vector<Tquery *> & queries, vector<Tnode *> & leafs) {
+        /*
+        This function is used for additional-tree data structure
+        The Lazy and Eager won't execute anything.
+        */
+    }
 
     void insert(Tnode * & node, Tquery * query) {
         this->insertOps += 1;
@@ -91,6 +102,16 @@ public:
         this->mergeTime += elapsed_seconds.count();
     }
 
+    void postInsert(vector<Tquery *> & queries, vector<Tnode *> & leafs) {
+        auto begin = std::chrono::system_clock::now();
+
+        _postInsert(queries, leafs);
+
+        auto end = std::chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds = end - begin;
+        this->postInsertTime += elapsed_seconds.count();
+    }
+
     virtual unsigned long long int checksum() {
         return 0;
     }
@@ -111,8 +132,6 @@ public:
 
     virtual void print () {}
 
-    virtual void postInsert() {}
-
     virtual void printAllQueries() {}
 
     double elapsedTime() {
@@ -126,11 +145,16 @@ public:
 
 
 template <class Tr>
-class QMapExtra: public QMapBase <Tr> {
+class QMapAdditional: public QMapBase <Tr> {
 public:
     typedef typename Tr::Tinterval Tinterval;
     typedef typename Tr::Tquery Tquery;
     typedef typename Tr::Tnode Tnode;
+    typedef typename Tr::T T;
+    typedef vector <Tquery *> qArray;
+    typedef unordered_map<Tnode *, qArray> qMapType;
+
+    LeafTree<Tr> ltree;
 
     void _insert(Tnode * & node, Tquery * query) {}
 
@@ -164,7 +188,27 @@ public:
         return s;
     }
 
-    void postInsert() {}
+    unordered_map<Tquery *, qArray> plain() {
+        unordered_map<Tquery *, vector<Tquery *> > qm;
+        vector <LeafNode<T> *> nodes = ltree.nodes();
+
+        for (size_t i = 0; i < nodes.size(); i++) {
+            Tquery * query = new Tquery(nodes[i]->interval);
+            qm[query] = nodes[i]->queries;
+        }
+
+        return qm;
+    }
+
+    void _postInsert(vector<Tquery *> & queries, vector<Tnode *> & leafs) {
+        random_shuffle(leafs.begin(), leafs.end());
+        for (size_t i = 0; i < leafs.size(); i++) {
+            ltree.insert(leafs[i]->interval);
+        }
+        for (size_t i = 0; i < queries.size(); i++) {
+            ltree.assign(queries[i]);
+        }
+    }
 };
 
 

@@ -199,13 +199,19 @@ public:
         }
     }
 
-    void insert(vector<Tquery *> & vector) {
-        for (size_t i = 0; i < vector.size(); i++) {
-            this->insert(vector[i]);
+    void insert(vector<Tquery *> & queries) {
+        for (size_t i = 0; i < queries.size(); i++) {
+            this->_insert(queries[i]);
         }
     }
 
-    void insert(Tquery * query) {
+    void additionalDataStructure(vector<Tquery *> & queries) {
+        vector<Tnode *> leafs;
+        root->getLeafs(leafs);
+        qMap->postInsert(queries, leafs);
+    }
+
+    void _insert(Tquery * query) {
         vector<Tinterval> Q = split_queries_in_intervals(query, M);
         bool controlInserts = Q.size() > 1;
         unordered_set<Tnode *> insertNodesTemp;

@@ -154,15 +154,41 @@ T postFiltering(vector<Tresult *> table, queryMap & qMap) {
 
 
 queryMap queryIndexing(vector <Tquery *> queryPlan){
-    auto sti = std::chrono::system_clock::now();
-    QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
-    UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leafSize, qMap);
-    uitree->insert(queryPlan);
-    auto eti = std::chrono::system_clock::now();
-    chrono::duration<double> ei = eti - sti;
-    csvResults->ii_time = ei.count();
-    csvResults->setUIValues(uitree->getLeafsData());
-    return qMap->plain();
+    queryMap result;
+    if (FLAGS_strategy == "lazy") {
+        auto sti = std::chrono::system_clock::now();
+        QMapLazy <Traits <T>> * qMap = new QMapLazy <Traits <T>>();
+        UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leafSize, qMap);
+        uitree->insert(queryPlan);
+        auto eti = std::chrono::system_clock::now();
+        chrono::duration<double> ei = eti - sti;
+        auto stp = std::chrono::system_clock::now();
+        csvResults->ii_time = ei.count() - qMap->elapsedTime();
+        csvResults->qm_time = qMap->elapsedTime();
+        result = qMap->plain();
+        auto etp = std::chrono::system_clock::now();
+        chrono::duration<double> ep = etp - stp;
+        csvResults->qm_time += ep.count();
+        csvResults->setUIValues(uitree->getLeafsData());
+
+    } else if (FLAGS_strategy == "additional") {
+        auto sti = std::chrono::system_clock::now();
+        QMapAdditional <Traits <T>> * qMap = new QMapAdditional <Traits <T>>();
+        UITree <Traits <T> > * uitree = new UITree <Traits <T> >(leafSize, qMap);
+        uitree->insert(queryPlan);
+        auto eti = std::chrono::system_clock::now();
+        chrono::duration<double> ei = eti - sti;
+        csvResults->ii_time = ei.count() - qMap->elapsedTime();
+        auto stp = std::chrono::system_clock::now();
+        uitree->additionalDataStructure(queryPlan);
+        result = qMap->plain();
+        auto etp = std::chrono::system_clock::now();
+        chrono::duration<double> ep = etp - stp;
+        csvResults->qm_time = ep.count();
+        csvResults->setUIValues(uitree->getLeafsData());
+    }
+
+    return result;
 }
 
 
@@ -170,9 +196,13 @@ void queryCoplanning(vector <Tquery *>& queryPlan) {
     // indexing
     queryMap qMapPlain = queryIndexing(queryPlan);
     vector<Tquery *> newQueryPlan;
+    auto sti = std::chrono::system_clock::now();
     for(auto it = qMapPlain.begin(); it != qMapPlain.end(); it++) {
         newQueryPlan.push_back(it->first);
     }
+    auto eti = std::chrono::system_clock::now();
+    chrono::duration<double> ei = eti - sti;
+    csvResults->qm_time += ei.count();
     // end indexing
     // Execute new query plan
     if (FLAGS_exec_database) {
